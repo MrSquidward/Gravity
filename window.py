@@ -1,4 +1,6 @@
 import tkinter as tk
+import physics
+
 
 def create_circle(x, y, r, canvas, tag, color='black'):
     x0 = x - r
