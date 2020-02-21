@@ -2,69 +2,73 @@
 import math
 
 
-class GravityObject:
+GRAVITY_CONST = 6.674301515E-11
 
+
+class GravityObject:
     def __init__(self, pos, velo, mass):
         self.position = pos
         self.velocity = velo
         self.mass = mass
 
+    def update_parameters(self, obj2, r, time, signs):
+        acceleration_x = (GRAVITY_CONST * obj2.mass * cos_value_in_x(r, self.position[0], obj2.position[0])) / (r ** 2)
+        acceleration_x *= -signs[0]
+        self.position[0] = (acceleration_x * (time ** 2) / 2) + self.velocity[0] * time + self.position[0]
+        self.velocity[0] = acceleration_x * time + self.velocity[0]
 
-def compute_distance(pos_x1, pos_y1, pos_x2, pos_y2):
-    return math.sqrt((pos_x1 - pos_x2) ** 2 + (pos_y1 - pos_y2) ** 2)
-
-
-def cos_value_in_y(r, obj1, obj2):
-    y = obj1.position[1] - obj2.position[1]
-    if y > 0:
-        return y / r
-    else:
-        return ((-1) * y) / r
-
-
-def cos_value_in_x(r, obj1, obj2):
-    x = obj1.position[0] - obj2.position[0]
-    if x > 0:
-        return x / r
-    else:
-        return ((-1) * x) / r
+        acceleration_y = (GRAVITY_CONST * obj2.mass * cos_value_in_y(r, self.position[1], obj2.position[1])) / (r ** 2)
+        acceleration_y *= -signs[1]
+        self.position[1] = (acceleration_y * (time ** 2) / 2) + self.velocity[1] * time + self.position[1]
+        self.velocity[1] = acceleration_y * time + self.velocity[1]
 
 
-GRAVITY_CONST = 6.674301515E-11
+def compute_distance(x1, y1, x2, y2):
+    return math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
 
 
-def compute_for_object(obj1, obj2, r, time, i):
-    acceleration_x = (GRAVITY_CONST * obj2.mass * cos_value_in_x(r, obj1, obj2)) / (r ** 2)
-    acceleration_x *= (-1) * i
-    obj1.position[0] = (acceleration_x * (time ** 2) / 2) + obj1.velocity[0] * time + obj1.position[0]
-    obj1.velocity[0] = acceleration_x * time + obj1.velocity[0]
+def cos_value_in_y(r, y1, y2):
+    y = y1 - y2
+    return abs(y) / r
 
-    acceleration_y = (GRAVITY_CONST * obj2.mass * cos_value_in_y(r, obj1, obj2)) / (r ** 2)
-    acceleration_y *= (-1) * i
-    obj1.position[1] = (acceleration_y * (time ** 2) / 2) + obj1.velocity[1] * time + obj1.position[1]
-    obj1.velocity[1] = acceleration_y * time + obj1.velocity[1]
-    return obj1
+
+def cos_value_in_x(r, x1, x2):
+    x = x1 - x2
+    return abs(x) / r
 
 
 def compute_center(obj1, obj2):
     cen_x = obj1.position[0] - ((obj1.position[0] - obj2.position[0]) / 2)
     cen_y = obj1.position[1] - ((obj1.position[1] - obj2.position[1]) / 2)
-    return [cen_x, cen_y]
+    return cen_x, cen_y
 
 
-def compute_new_param(obj1, obj2, time):
-    r = compute_distance(obj1.position[0], obj1.position[1], obj2.position[0], obj2.position[1])
-    center_of_objects = compute_center(obj1, obj2)   
-    print(center_of_objects[0])
-    print(center_of_objects[1])
-    if obj1.position[0] < center_of_objects[0]:
-        obj1 = compute_for_object(obj1, obj2, r, time, -1)
-        obj2 = compute_for_object(obj2, obj1, r, time, 1)
-        print("Pierwszy warinat")
+def check_collision(obj1, obj2, distance):
+    return abs(obj1.position[0] - obj2.position[0]) <= distance and abs(obj1.position[1] - obj2.position[1]) <= distance
+
+
+def check_quadrants(x, y, center_x, center_y):
+    if x < center_x:
+        sign_x = -1
     else:
-        obj1 = compute_for_object(obj1, obj2, r, time, 1)
-        obj2 = compute_for_object(obj2, obj1, r, time, -1)
-        print("Drugi wariant")
+        sign_x = 1
 
-    objects_list = [obj1, obj2]
-    return objects_list
+    if y < center_y:
+        sign_y = -1
+    else:
+        sign_y = 1
+
+    return sign_x, sign_y
+
+
+def update_objects_positions(obj1, obj2, time):
+    r = compute_distance(obj1.position[0], obj1.position[1], obj2.position[0], obj2.position[1])
+    middle_point = compute_center(obj1, obj2)
+
+    print(r)
+
+    signs_obj1 = check_quadrants(obj1.position[0], obj1.position[1], middle_point[0], middle_point[1])
+    signs_obj2 = check_quadrants(obj2.position[0], obj2.position[1], middle_point[0], middle_point[1])
+
+    obj1.update_parameters(obj2, r, time, signs_obj1)
+    obj2.update_parameters(obj1, r, time, signs_obj2)

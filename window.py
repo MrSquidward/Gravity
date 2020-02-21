@@ -1,5 +1,6 @@
 import tkinter as tk
 import physics as ph
+import time
 
 def create_circle(x, y, r, canvas, tag='none', color='black'):
     x0 = x - r
@@ -11,6 +12,10 @@ def create_circle(x, y, r, canvas, tag='none', color='black'):
 def display_gravity_objects(g_object1, g_object2, canvas):
     create_circle(g_object1.position[0], g_object1.position[1], 20, canvas, 'object1', 'blue')
     create_circle(g_object2.position[0], g_object2.position[1], 20, canvas, 'object2', 'blue')
+
+def display_gravity_center(g_object1, g_object2, canvas):
+    position = ph.compute_center(g_object1, g_object2)
+    create_circle(position[0], position[1], 2, canvas, 'center', 'red')
 
 def clear_canvas(canvas):
     canvas.delete('all')
@@ -28,42 +33,31 @@ class InputFrame:
 
         self.font = ('Arial', 14)
 
-        self.entry_x1 = tk.Entry(self.root)
-        self.entry_y1 = tk.Entry(self.root)
         self.entry_velo1 = tk.Entry(self.root)
         self.entry_mass1 = tk.Entry(self.root)
-
-        self.entry_x2 = tk.Entry(self.root)
-        self.entry_y2 = tk.Entry(self.root)
         self.entry_velo2 = tk.Entry(self.root)
         self.entry_mass2 = tk.Entry(self.root)
 
-        self.place_entry_fields()
+        # self.place_entry_fields()
         self.create_start_simulation_button()
 
     def place_entry_fields(self):
-        self.entry_x1.place(x=50, y=50)
-        self.entry_y1.place(x=200, y=50)
         self.entry_velo1.place(x=10, y=10)
         self.entry_mass1.place(x=10, y=10)
-
-        self.entry_x2.place(x=10, y=10)
-        self.entry_y2.place(x=10, y=10)
         self.entry_velo2.place(x=10, y=10)
         self.entry_mass2.place(x=10, y=10)
 
     def cb_start_simulation(self):
-        object1 = ph.GravityObject([150, 150], [0, 0], 10E14)
-        object2 = ph.GravityObject([550, 550], [-10, 0], 10E14)
-        list_of_objects = [object1, object2]
-        for i in range(10000):
-            list_of_objects = ph.compute_new_param(list_of_objects[0], list_of_objects[1], 0.08)
-            #print(list_of_objects[0].position[0], list_of_objects[0].position[1])
-            #print(list_of_objects[1].position[0], list_of_objects[1].position[1])
-            #clear_canvas(self.canvas)
-            display_gravity_objects(list_of_objects[0], list_of_objects[1], self.canvas)
+        object1 = ph.GravityObject([100, 100], [0, 5], 10E14)
+        object2 = ph.GravityObject([550, 550], [0, -5], 10E14)
+
+        while not ph.check_collision(object1, object2, 10):
+            clear_canvas(self.canvas)
+            ph.update_objects_positions(object1, object2, 0.08)
+            display_gravity_objects(object1, object2, self.canvas)
+            display_gravity_center(object1, object2, self.canvas)
             update_window(self.root)
-            #print(i)
+            time.sleep(0.01)
 
     def create_start_simulation_button(self):
         button = tk.Button(self.frame, text='Start', font=self.font, command=self.cb_start_simulation)
