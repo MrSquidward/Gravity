@@ -1,4 +1,5 @@
 import tkinter as tk
+import physics as ph
 
 def create_circle(x, y, r, canvas, tag='none', color='black'):
     x0 = x - r
@@ -52,7 +53,17 @@ class InputFrame:
         self.entry_mass2.place(x=10, y=10)
 
     def cb_start_simulation(self):
-        pass
+        object1 = ph.GravityObject([150, 150], [0, 0], 10E14)
+        object2 = ph.GravityObject([550, 550], [-10, 0], 10E14)
+        list_of_objects = [object1, object2]
+        for i in range(10000):
+            list_of_objects = ph.compute_new_param(list_of_objects[0], list_of_objects[1], 0.08)
+            #print(list_of_objects[0].position[0], list_of_objects[0].position[1])
+            #print(list_of_objects[1].position[0], list_of_objects[1].position[1])
+            #clear_canvas(self.canvas)
+            display_gravity_objects(list_of_objects[0], list_of_objects[1], self.canvas)
+            update_window(self.root)
+            #print(i)
 
     def create_start_simulation_button(self):
         button = tk.Button(self.frame, text='Start', font=self.font, command=self.cb_start_simulation)
