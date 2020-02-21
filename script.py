@@ -12,5 +12,6 @@ draw_frame.pack(side=tk.LEFT)
 canvas = tk.Canvas(draw_frame, bg='white', height=600, width=800)
 canvas.pack()
 
+input_frame = win.InputFrame(master, canvas)
 
 tk.mainloop()
