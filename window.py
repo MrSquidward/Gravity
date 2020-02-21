@@ -27,10 +27,29 @@ class InputFrame:
 
         self.font = ('Arial', 14)
 
+        self.entry_x1 = tk.Entry(self.root)
+        self.entry_y1 = tk.Entry(self.root)
+        self.entry_velo1 = tk.Entry(self.root)
+        self.entry_mass1 = tk.Entry(self.root)
+
+        self.entry_x2 = tk.Entry(self.root)
+        self.entry_y2 = tk.Entry(self.root)
+        self.entry_velo2 = tk.Entry(self.root)
+        self.entry_mass2 = tk.Entry(self.root)
+
+        self.place_entry_fields()
         self.create_start_simulation_button()
 
-    def create_entries_fields(self):
-        self.entry_x1 = tk.Entry(self.root)
+    def place_entry_fields(self):
+        self.entry_x1.place(x=50, y=50)
+        self.entry_y1.place(x=200, y=50)
+        self.entry_velo1.place(x=10, y=10)
+        self.entry_mass1.place(x=10, y=10)
+
+        self.entry_x2.place(x=10, y=10)
+        self.entry_y2.place(x=10, y=10)
+        self.entry_velo2.place(x=10, y=10)
+        self.entry_mass2.place(x=10, y=10)
 
     def cb_start_simulation(self):
         pass
