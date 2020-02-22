@@ -2,6 +2,7 @@ import tkinter as tk
 import physics as ph
 import time
 
+
 def create_circle(x, y, r, canvas, tag='none', color='black'):
     x0 = x - r
     y0 = y - r
@@ -9,19 +10,28 @@ def create_circle(x, y, r, canvas, tag='none', color='black'):
     y1 = y + r
     return canvas.create_oval(x0, y0, x1, y1, tags=tag, fill=color)
 
+
 def display_gravity_objects(g_object1, g_object2, canvas):
     create_circle(g_object1.position[0], g_object1.position[1], 20, canvas, 'object1', 'blue')
     create_circle(g_object2.position[0], g_object2.position[1], 20, canvas, 'object2', 'blue')
 
-def display_gravity_center(g_object1, g_object2, canvas):
+
+def display_mass_center(g_object1, canvas):
+    create_circle(g_object1.center_of_mass[0], g_object1.center_of_mass[1], 2, canvas, 'center', 'red')
+
+
+def display_geometrical_center(g_object1, g_object2, canvas):
     position = ph.compute_center(g_object1, g_object2)
-    create_circle(position[0], position[1], 2, canvas, 'center', 'red')
+    create_circle(position[0], position[1], 2, canvas, 'center', 'purple')
+
 
 def clear_canvas(canvas):
     canvas.delete('all')
 
+
 def update_window(master):
     master.update()
+
 
 class InputFrame:
     def __init__(self, master, can):
@@ -48,14 +58,14 @@ class InputFrame:
         self.entry_mass2.place(x=10, y=10)
 
     def cb_start_simulation(self):
-        object1 = ph.GravityObject([100, 100], [0, 5], 10E14)
-        object2 = ph.GravityObject([550, 550], [0, -5], 10E14)
-
+        object1 = ph.GravityObject([550, 50], [0, 5], 30E14)
+        object2 = ph.GravityObject([50, 550], [0, 0], 10E14)
         while not ph.check_collision(object1, object2, 10):
             clear_canvas(self.canvas)
             ph.update_objects_positions(object1, object2, 0.08)
             display_gravity_objects(object1, object2, self.canvas)
-            display_gravity_center(object1, object2, self.canvas)
+            display_mass_center(object1, self.canvas)
+            display_geometrical_center(object1, object2, self.canvas)
             update_window(self.root)
             time.sleep(0.01)
 
