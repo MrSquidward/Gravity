@@ -25,6 +25,22 @@ def display_geometrical_center(g_object1, g_object2, canvas):
     create_circle(position[0], position[1], 2, canvas, 'center', 'purple')
 
 
+def display_object_path(g_object, canvas):
+        prev_x = int(g_object.previous_positions[0][0])
+        prev_y = int(g_object.previous_positions[0][1])
+
+        for idx in range(1, len(g_object.previous_positions)):
+            x = int(g_object.previous_positions[idx][0])
+            y = int(g_object.previous_positions[idx][1])
+
+            if prev_x == x and prev_y == y:
+                continue
+            else:
+                canvas.create_line(prev_x, prev_y, x, y)
+                prev_x = x
+                prev_y = y
+
+
 def clear_canvas(canvas):
     canvas.delete('all')
 
@@ -58,12 +74,15 @@ class InputFrame:
         self.entry_mass2.place(x=10, y=10)
 
     def cb_start_simulation(self):
-        object1 = ph.GravityObject([550, 50], [0, 5], 30E14)
-        object2 = ph.GravityObject([50, 550], [0, 0], 10E14)
+        object1 = ph.GravityObject([550, 50], [0, 0], 30E14)
+        object2 = ph.GravityObject([50, 50], [0, 5], 10E14)
+
         while not ph.check_collision(object1, object2, 10):
             clear_canvas(self.canvas)
             ph.update_objects_positions(object1, object2, 0.08)
             display_gravity_objects(object1, object2, self.canvas)
+            # display_object_path(object1, self.canvas)
+            # display_object_path(object2, self.canvas)
             display_mass_center(object1, self.canvas)
             display_geometrical_center(object1, object2, self.canvas)
             update_window(self.root)

@@ -10,10 +10,13 @@ class GravityObject:
         self.position = pos
         self.velocity = velo
         self.mass = mass
-        self.list_of_previous_position = [self.position]#todo nie dziala wyswietlanie linii, ale tablica pozcyji jest ok
+        self.previous_positions = []
         self.center_of_mass = [0, 0] #todo zrobic aby to nie bylo elementem obiektu
 
+
     def update_parameters(self, obj2, r, time, signs):
+        self.previous_positions.append((self.position[0], self.position[1]))
+
         acceleration_x = (GRAVITY_CONST * obj2.mass * cos_value_in_x(r, self.position[0], obj2.position[0])) / (r ** 2)
         acceleration_x *= -signs[0]
         self.position[0] = (acceleration_x * (time ** 2) / 2) + self.velocity[0] * time + self.position[0]
@@ -23,8 +26,6 @@ class GravityObject:
         acceleration_y *= -signs[1]
         self.position[1] = (acceleration_y * (time ** 2) / 2) + self.velocity[1] * time + self.position[1]
         self.velocity[1] = acceleration_y * time + self.velocity[1]
-
-        self.list_of_previous_position.append(self.position)
 
 
 def compute_distance(x1, y1, x2, y2):
