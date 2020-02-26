@@ -103,8 +103,8 @@ class InputFrame:
         else:
             self.start_simulation_button.config(text='Break')
 
-        object1 = ph.GravityObject([550, 50], [0, 0], 30E14)
-        object2 = ph.GravityObject([50, 50], [0, 5], 10E14)
+        object1 = ph.GravityObject([300, 50], [-4, 1], 30E14)
+        object2 = ph.GravityObject([350, 500], [5, 5], 10E14)
 
         while not ph.check_collision(object1, object2, 10) and self.start_simulation_button['text'] == 'Break':
             clear_canvas(self.canvas)
