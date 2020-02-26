@@ -49,12 +49,16 @@ def update_window(master):
     master.update()
 
 
+def canvas_right_click(event):
+    print(event.x, event.y)
+
+
 class InputFrame:
     def __init__(self, master, can):
         self.root = master
         self.canvas = can
 
-        self.frame = tk.Frame(self.root, height=600, width=200)
+        self.frame = tk.Frame(self.root, height=600, width=300)
         self.frame.pack(side=tk.RIGHT)
 
         self.font = ('Arial', 14)
@@ -64,8 +68,13 @@ class InputFrame:
         self.entry_velo2 = tk.Entry(self.root)
         self.entry_mass2 = tk.Entry(self.root)
 
+        self.is_checked_mass_center = tk.IntVar()
+        self.is_checked_geom_center = tk.IntVar()
+        self.is_checked_objects_paths = tk.IntVar()
+
         # self.place_entry_fields()
         self.create_start_simulation_button()
+        self.create_checkboxes()
 
     def place_entry_fields(self):
         self.entry_velo1.place(x=10, y=10)
@@ -73,21 +82,51 @@ class InputFrame:
         self.entry_velo2.place(x=10, y=10)
         self.entry_mass2.place(x=10, y=10)
 
+    def create_checkboxes(self):
+        checkbox_mass_center = tk.Checkbutton(self.frame, text='Display mass center', font=self.font)
+        checkbox_geom_center = tk.Checkbutton(self.frame, text='Display geometrical center', font=self.font)
+        checkbox_objects_paths = tk.Checkbutton(self.frame, text='Display objects paths', font=self.font)
+
+        checkbox_mass_center.config(variable=self.is_checked_mass_center)
+        checkbox_geom_center.config(variable=self.is_checked_geom_center)
+        checkbox_objects_paths.config(variable=self.is_checked_objects_paths)
+
+        checkbox_mass_center.place(x=10, y=300)
+        checkbox_geom_center.place(x=10, y=350)
+        checkbox_objects_paths.place(x=10, y=400)
+
     def cb_start_simulation(self):
+        if self.start_simulation_button['text'] == 'Break':
+            self.start_simulation_button.config(text='Start')
+            #resetBtn callback here
+            return
+        else:
+            self.start_simulation_button.config(text='Break')
+
         object1 = ph.GravityObject([550, 50], [0, 0], 30E14)
         object2 = ph.GravityObject([50, 50], [0, 5], 10E14)
 
-        while not ph.check_collision(object1, object2, 10):
+        while not ph.check_collision(object1, object2, 10) and self.start_simulation_button['text'] == 'Break':
             clear_canvas(self.canvas)
             ph.update_objects_positions(object1, object2, 0.08)
             display_gravity_objects(object1, object2, self.canvas)
-            # display_object_path(object1, self.canvas)
-            # display_object_path(object2, self.canvas)
-            display_mass_center(object1, self.canvas)
-            display_geometrical_center(object1, object2, self.canvas)
+
+            if self.is_checked_objects_paths.get():
+                display_object_path(object1, self.canvas)
+                display_object_path(object2, self.canvas)
+
+            if self.is_checked_mass_center.get():
+                display_mass_center(object1, self.canvas)
+
+            if self.is_checked_geom_center.get():
+                display_geometrical_center(object1, object2, self.canvas)
+
             update_window(self.root)
             time.sleep(0.01)
 
+        self.start_simulation_button.config(text='Start')
+
     def create_start_simulation_button(self):
-        button = tk.Button(self.frame, text='Start', font=self.font, command=self.cb_start_simulation)
-        button.place(x=100, y=100)
+        self.start_simulation_button = tk.Button(self.frame, font=self.font, command=self.cb_start_simulation)
+        self.start_simulation_button.config(text='Start')
+        self.start_simulation_button.place(x=100, y=100)

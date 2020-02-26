@@ -14,4 +14,6 @@ canvas.pack()
 
 input_frame = win.InputFrame(master, canvas)
 
+canvas.bind("<Button-1>", win.canvas_right_click)
+
 tk.mainloop()
