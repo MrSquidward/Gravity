@@ -1,8 +1,21 @@
-# Contains functions and classes that compute motion equations and give positions of two objects
+# Contains functions and classes that compute motion equations and give new positions of two objects
+# as well as calculating mass enter and geometrical center.
 import math
 
 
 GRAVITY_CONST = 6.674301515E-11
+
+
+class GravityParameters:
+    def __init__(self, obj1, obj2):
+        distance = compute_distance(obj1.position[0], obj1.position[1], obj2.position[0], obj2.position[1] )
+        signs_obj1 = check_quadrants(obj1.position[0], obj1.position[1], obj2.position[0], obj2.position[1])
+        self.center_of_mass = compute_center_of_mass(obj1, obj2, distance, signs_obj1)
+        self.geometrical_center = compute_center(obj1, obj2)
+
+    def update_params(self, obj1, obj2, signs_1, distance):
+        self.center_of_mass = compute_center_of_mass(obj1, obj2, distance, signs_1)
+        self.geometrical_center = compute_center(obj1, obj2)
 
 
 class GravityObject:
@@ -11,8 +24,6 @@ class GravityObject:
         self.velocity = velo
         self.mass = mass
         self.previous_positions = []
-        self.center_of_mass = [0, 0] #todo zrobic aby to nie bylo elementem obiektu
-
 
     def update_parameters(self, obj2, r, time, signs):
         self.previous_positions.append((self.position[0], self.position[1]))
@@ -78,14 +89,13 @@ def check_quadrants(x, y, center_x, center_y):
     return sign_x, sign_y
 
 
-def update_objects_positions(obj1, obj2, time):
+def update_objects_positions(obj1, obj2, gravity_params, time):
     r = compute_distance(obj1.position[0], obj1.position[1], obj2.position[0], obj2.position[1])
-    middle_point = compute_center(obj1, obj2)
 
-    signs_obj1 = check_quadrants(obj1.position[0], obj1.position[1], middle_point[0], middle_point[1])
-    signs_obj2 = check_quadrants(obj2.position[0], obj2.position[1], middle_point[0], middle_point[1])
-
-    obj1.center_of_mass = compute_center_of_mass(obj1, obj2, r, signs_obj1)
+    signs_obj1 = check_quadrants(obj1.position[0], obj1.position[1], obj2.position[0], obj2.position[1])
+    signs_obj2 = check_quadrants(obj2.position[0], obj2.position[1], obj1.position[0], obj1.position[1])
 
     obj1.update_parameters(obj2, r, time, signs_obj1)
     obj2.update_parameters(obj1, r, time, signs_obj2)
+
+    gravity_params.update_params(obj1, obj2, signs_obj1, r)
