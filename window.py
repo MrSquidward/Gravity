@@ -16,13 +16,12 @@ def display_gravity_objects(g_object1, g_object2, canvas):
     create_circle(g_object2.position[0], g_object2.position[1], 20, canvas, 'object2', 'blue')
 
 
-def display_mass_center(g_object1, canvas):
-    create_circle(g_object1.center_of_mass[0], g_object1.center_of_mass[1], 2, canvas, 'center', 'red')
+def display_mass_center(gravity_params, canvas):
+    create_circle(gravity_params.center_of_mass[0], gravity_params.center_of_mass[1], 2, canvas, 'center', 'red')
 
 
-def display_geometrical_center(g_object1, g_object2, canvas):
-    position = ph.compute_center(g_object1, g_object2)
-    create_circle(position[0], position[1], 2, canvas, 'center', 'purple')
+def display_geometrical_center(gravity, canvas):
+    create_circle(gravity.geometrical_center[0], gravity.geometrical_center[1], 2, canvas, 'center', 'purple')
 
 
 def display_object_path(g_object, canvas):
@@ -106,9 +105,12 @@ class InputFrame:
         object1 = ph.GravityObject([300, 300], [0, 2], 30E14)
         object2 = ph.GravityObject([500, 500], [-10, 5], 10E14)
 
+        gravity_params = ph.GravityParameters(object1, object2)
+
+
         while not ph.check_collision(object1, object2, 10) and self.start_simulation_button['text'] == 'Break':
             clear_canvas(self.canvas)
-            ph.update_objects_positions(object1, object2, 0.08)
+            ph.update_objects_positions(object1, object2, gravity_params, 0.08)
             display_gravity_objects(object1, object2, self.canvas)
 
             if self.is_checked_objects_paths.get():
@@ -116,10 +118,10 @@ class InputFrame:
                 display_object_path(object2, self.canvas)
 
             if self.is_checked_mass_center.get():
-                display_mass_center(object1, self.canvas)
+                display_mass_center(gravity_params, self.canvas)
 
             if self.is_checked_geom_center.get():
-                display_geometrical_center(object1, object2, self.canvas)
+                display_geometrical_center(gravity_params, self.canvas)
 
             update_window(self.root)
             time.sleep(0.01)

@@ -1,6 +1,5 @@
 import window as win
 import tkinter as tk
-import physics as ph
 
 
 master = tk.Tk()
