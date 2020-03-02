@@ -4,6 +4,8 @@ import math
 
 
 GRAVITY_CONST = 6.674301515E-11
+# how often position will be put into list of prev position (once in number below)
+PREVIOUS_POSITION_PRECISION = 3
 
 
 class GravityParameters:
@@ -17,7 +19,6 @@ class GravityParameters:
         self.center_of_mass = compute_center_of_mass(obj1, obj2, distance, signs_obj1)
         self.geometrical_center = compute_geometrical_center(obj1, obj2)
 
-
     def update_params(self, obj1, obj2, vector_sense, distance):
         self.center_of_mass = compute_center_of_mass(obj1, obj2, distance, vector_sense)
         self.geometrical_center = compute_geometrical_center(obj1, obj2)
@@ -29,10 +30,14 @@ class GravityObject:
         self.velocity = velo
         self.mass = mass
         self.previous_positions = []
-
+        self.previous_positions_iterator = PREVIOUS_POSITION_PRECISION
 
     def update_parameters(self, obj2, r, time, vector_sense):
-        self.previous_positions.append((self.position[0], self.position[1]))
+        if self.previous_positions_iterator == PREVIOUS_POSITION_PRECISION:
+            self.previous_positions.append((self.position[0], self.position[1]))
+            self.previous_positions_iterator = 0
+        else:
+            self.previous_positions_iterator += 1
 
         acceleration_x = (GRAVITY_CONST * obj2.mass * cos_value_in_x(r, self.position[0], obj2.position[0])) / (r ** 2)
         acceleration_x *= -vector_sense[0]
@@ -108,6 +113,7 @@ def update_objects_positions(obj1, obj2, gravity_params, time):
     obj2.update_parameters(obj1, r, time, vector_sense_obj2)
 
     gravity_params.update_params(obj1, obj2, vector_sense_obj1, r)
+
 
 def is_position_the_same(x1, y1, x2, y2, r):
     delta_x = abs(x1 - x2)
