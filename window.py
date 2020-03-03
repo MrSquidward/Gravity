@@ -105,7 +105,7 @@ class InputFrame:
         while not ph.check_collision(object1, object2, COLLISION_RADIUS)\
                 and self.start_simulation_button['text'] == 'Break':
             clear_canvas(self.canvas)
-            ph.update_objects_positions(object1, object2, gravity_params, 0.08)
+            ph.update_objects_positions(gravity_params, 0.08)
             display_gravity_object(object1, self.canvas)
             display_gravity_object(object2, self.canvas)
 
