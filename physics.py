@@ -31,7 +31,8 @@ class GravityObject:
     def update_parameters(self, objects, time):
         if not self.previous_positions_iterator % PREVIOUS_POSITION_PRECISION:
             self.previous_positions.append((self.position[0], self.position[1]))
-            self.previous_positions_iterator += 1
+
+        self.previous_positions_iterator += 1
 
         acceleration_x = acceleration_y = 0
         for obj in objects:
