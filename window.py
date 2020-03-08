@@ -2,6 +2,13 @@ import tkinter as tk
 import physics as ph
 import time
 
+# distance between two objects that is consider as crash
+COLLISION_RADIUS = 10
+# radius of objects during viewing it on canvas
+OBJECT_RADIUS = 20
+# size of dot (used in viewing mass and geometrical center)
+DOT_RADIUS = 2
+
 
 def create_circle(x, y, r, canvas, tag='none', color='black'):
     x0 = x - r
@@ -12,24 +19,24 @@ def create_circle(x, y, r, canvas, tag='none', color='black'):
 
 
 def display_gravity_object(g_object, canvas):
-    create_circle(g_object.position[0], g_object.position[1], 20, canvas, 'g_object', 'blue')
+    create_circle(g_object.position[0], g_object.position[1], OBJECT_RADIUS, canvas, 'g_object', 'blue')
 
 
 def display_all_gravity_objects(g_objects, canvas):
     for g_obj in g_objects:
-        create_circle(g_obj.position[0], g_obj.position[1], 20, canvas, 'g_object', 'blue')
+        create_circle(g_obj.position[0], g_obj.position[1], OBJECT_RADIUS, canvas, 'g_object', 'blue')
 
 
 def display_mass_center(gravity_params, canvas):
     x = gravity_params.center_of_mass[0]
     y = gravity_params.center_of_mass[1]
-    create_circle(x, y, 2, canvas, 'center', 'red')
+    create_circle(x, y, DOT_RADIUS, canvas, 'center', 'red')
 
 
 def display_geometrical_center(gravity, canvas):
     x = gravity.geometrical_center[0]
     y = gravity.geometrical_center[1]
-    create_circle(x, y, 2, canvas, 'center', 'purple')
+    create_circle(x, y, DOT_RADIUS, canvas, 'center', 'purple')
 
 
 def display_object_path(g_object, canvas):
@@ -74,7 +81,6 @@ class InputFrame:
         self.create_start_simulation_button()
         self.create_checkboxes()
 
-
     def create_checkboxes(self):
         checkbox_mass_center = tk.Checkbutton(self.frame, text='Display mass center', font=self.font)
         checkbox_geom_center = tk.Checkbutton(self.frame, text='Display geometrical center', font=self.font)
@@ -88,7 +94,6 @@ class InputFrame:
         checkbox_geom_center.place(x=10, y=350)
         checkbox_objects_paths.place(x=10, y=400)
 
-
     def cb_start_simulation(self):
         if self.start_simulation_button['text'] == 'Break':
             self.start_simulation_button.config(text='Start')
@@ -101,9 +106,10 @@ class InputFrame:
         object1 = self.objs_list[0]
         object2 = self.objs_list[1]
 
-        while not ph.check_collision(object1, object2, 10) and self.start_simulation_button['text'] == 'Break':
+        while not ph.check_collision(object1, object2, COLLISION_RADIUS)\
+                and self.start_simulation_button['text'] == 'Break':
             clear_canvas(self.canvas)
-            ph.update_objects_positions(object1, object2, gravity_params, 0.08)
+            ph.update_objects_positions(gravity_params, 0.08)
             display_gravity_object(object1, self.canvas)
             display_gravity_object(object2, self.canvas)
 
@@ -122,26 +128,24 @@ class InputFrame:
 
         self.start_simulation_button.config(text='Start')
 
-
     def canvas_right_click(self, event):
-        print(event.x, event.y)
-
         for obj in self.objs_list:
-            if ph.is_position_the_same(event.x, event.y, obj.position[0], obj.position[1], 20):
+            if ph.is_position_the_same(event.x, event.y, obj.position[0], obj.position[1], OBJECT_RADIUS):
                 ObjectOptions(self.root, obj, self.canvas, self.objs_list)
                 return
 
-        g_object = ph.GravityObject([event.x, event.y], [0, 0], 30E14)
+        # object with default values
+        g_object = ph.GravityObject([event.x, event.y], [20, 0], 30E14)
         self.objs_list.append(g_object)
 
         display_gravity_object(g_object, self.canvas)
         ObjectOptions(self.root, g_object, self.canvas, self.objs_list)
 
-
     def create_start_simulation_button(self):
         self.start_simulation_button = tk.Button(self.frame, font=self.font, command=self.cb_start_simulation)
         self.start_simulation_button.config(text='Start')
         self.start_simulation_button.place(x=100, y=100)
+
 
 class ObjectOptions:
     def __init__(self, m_root, g_obj, canvas, list):
@@ -176,7 +180,6 @@ class ObjectOptions:
         clear_canvas(self.canvas)
         display_all_gravity_objects(self.obj_list, self.canvas)
 
-
     def place_entry_fields(self):
         lb_velox = tk.Label(self.frame, font=self.font, text='X')
         lb_veloy = tk.Label(self.frame, font=self.font, text='Y')
@@ -210,6 +213,7 @@ class ObjectOptions:
         self.default_button['font'] = self.font
 
         self.default_button.place(x=60, y=200, width=80)
+
 
     def place_save_button(self):
         self.save_button['text'] = 'Save'
