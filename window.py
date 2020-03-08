@@ -1,4 +1,3 @@
-import re
 import tkinter as tk
 import physics as ph
 import time
@@ -13,7 +12,12 @@ def create_circle(x, y, r, canvas, tag='none', color='black'):
 
 
 def display_gravity_object(g_object, canvas):
-    create_circle(g_object.position[0], g_object.position[1], 20, canvas, 'object', 'blue')
+    create_circle(g_object.position[0], g_object.position[1], 20, canvas, 'g_object', 'blue')
+
+
+def display_all_gravity_objects(g_objects, canvas):
+    for g_obj in g_objects:
+        create_circle(g_obj.position[0], g_obj.position[1], 20, canvas, 'g_object', 'blue')
 
 
 def display_mass_center(gravity_params, canvas):
@@ -88,7 +92,7 @@ class InputFrame:
     def cb_start_simulation(self):
         if self.start_simulation_button['text'] == 'Break':
             self.start_simulation_button.config(text='Start')
-            #resetBtn callback here
+            # resetBtn callback here
             return
         else:
             self.start_simulation_button.config(text='Break')
@@ -124,14 +128,14 @@ class InputFrame:
 
         for obj in self.objs_list:
             if ph.is_position_the_same(event.x, event.y, obj.position[0], obj.position[1], 20):
-                ObjectOptions(self.root, obj)
+                ObjectOptions(self.root, obj, self.canvas, self.objs_list)
                 return
 
         g_object = ph.GravityObject([event.x, event.y], [0, 0], 30E14)
         self.objs_list.append(g_object)
 
         display_gravity_object(g_object, self.canvas)
-        ObjectOptions(self.root, g_object)
+        ObjectOptions(self.root, g_object, self.canvas, self.objs_list)
 
 
     def create_start_simulation_button(self):
@@ -140,8 +144,10 @@ class InputFrame:
         self.start_simulation_button.place(x=100, y=100)
 
 class ObjectOptions:
-    def __init__(self, m_root, g_obj):
+    def __init__(self, m_root, g_obj, canvas, list):
         self.g_object = g_obj
+        self.canvas = canvas
+        self.obj_list = list
 
         self.main_root = m_root
         self.root = tk.Toplevel(self.main_root)
@@ -149,55 +155,86 @@ class ObjectOptions:
 
         self.font = ('Arial', 13)
 
-        self.frame = tk.Frame(self.root, height=200, width=300)
+        self.frame = tk.Frame(self.root, height=250, width=300)
         self.frame.pack()
 
         self.save_button = tk.Button(self.frame, command=self.cb_save)
+        self.default_button = tk.Button(self.frame, command=self.cb_default_entry)
 
+        self.entry_posx = tk.Entry(self.frame)
+        self.entry_posy = tk.Entry(self.frame)
         self.entry_velox = tk.Entry(self.frame)
         self.entry_veloy = tk.Entry(self.frame)
         self.entry_mass = tk.Entry(self.frame)
 
         self.place_entry_fields()
         self.place_save_button()
+        self.place_default_button()
+
+
+    def __del__(self):
+        clear_canvas(self.canvas)
+        display_all_gravity_objects(self.obj_list, self.canvas)
 
 
     def place_entry_fields(self):
         lb_velox = tk.Label(self.frame, font=self.font, text='X')
         lb_veloy = tk.Label(self.frame, font=self.font, text='Y')
-        lb_mass = tk.Label(self.frame, font=self.font, text='Mass: ')
+        lb_position = tk.Label(self.frame, font=self.font, text='Position: ')
         lb_velocity = tk.Label(self.frame, font=self.font, text='Velocity: ')
+        lb_mass = tk.Label(self.frame, font=self.font, text='Mass: ')
 
         lb_velox.place(x=115, y=20)
         lb_veloy.place(x=215, y=20)
-        lb_mass.place(x=10, y=100)
-        lb_velocity.place(x=10, y=50)
+        lb_position.place(x=10, y=50)
+        lb_velocity.place(x=10, y=100)
+        lb_mass.place(x=10, y=150)
 
+        self.entry_posx['font'] = self.font
+        self.entry_posy['font'] = self.font
         self.entry_velox['font'] = self.font
         self.entry_veloy['font'] = self.font
         self.entry_mass['font'] = self.font
 
-        self.entry_velox.insert(0, self.g_object.velocity[0])
-        self.entry_veloy.insert(0, self.g_object.velocity[1])
-        self.entry_mass.insert(0, format(self.g_object.mass, '10.1E'))
+        self.cb_default_entry()
 
-        self.entry_velox.place(x=100, y=50, width=50)
-        self.entry_veloy.place(x=200, y=50, width=50)
-        self.entry_mass.place(x=100, y=100, width=100)
+        self.entry_posx.place(x=100, y=50, width=50)
+        self.entry_posy.place(x=200, y=50, width=50)
+        self.entry_velox.place(x=100, y=100, width=50)
+        self.entry_veloy.place(x=200, y=100, width=50)
+        self.entry_mass.place(x=100, y=150, width=100)
 
+
+    def place_default_button(self):
+        self.default_button['text'] = 'Default'
+        self.default_button['font'] = self.font
+
+        self.default_button.place(x=60, y=200, width=80)
 
     def place_save_button(self):
         self.save_button['text'] = 'Save'
         self.save_button['font'] = self.font
 
-        self.save_button.place(x=130, y=150)
+        self.save_button.place(x=170, y=200, width=80)
+
+
+    def cb_default_entry(self):
+        self.entry_posx.delete(0, tk.END)
+        self.entry_posy.delete(0, tk.END)
+        self.entry_velox.delete(0, tk.END)
+        self.entry_veloy.delete(0, tk.END)
+        self.entry_mass.delete(0, tk.END)
+
+        self.entry_posx.insert(0, self.g_object.position[0])
+        self.entry_posy.insert(0, self.g_object.position[1])
+        self.entry_velox.insert(0, self.g_object.velocity[0])
+        self.entry_veloy.insert(0, self.g_object.velocity[1])
+        self.entry_mass.insert(0, format(self.g_object.mass, '10.1E'))
 
 
     def cb_save(self):
-        self.g_object.mass = float(self.entry_mass.get())
-
-        # user_input_velo = re.findall(r'\d+', self.entry_velox.get())
-        # self.g_object.velocity = [int(user_input_velo[0]), int(user_input_velo[1])]
+        self.g_object.position = [int(self.entry_posx.get()), int(self.entry_posy.get())]
         self.g_object.velocity = [int(self.entry_velox.get()), int(self.entry_veloy.get())]
+        self.g_object.mass = float(self.entry_mass.get())
 
         self.root.destroy()
