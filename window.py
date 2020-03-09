@@ -8,6 +8,8 @@ COLLISION_RADIUS = 20
 OBJECT_RADIUS = 20
 # size of dot (used in viewing mass and geometrical center)
 DOT_RADIUS = 2
+# time after which new position is calculated and movement equations is updated to match distance changes
+TIME_FOR_APPROXIMATION = 0.01
 
 
 def create_circle(x, y, r, canvas, tag='none', color='black'):
@@ -106,7 +108,7 @@ class InputFrame:
 
         while self.start_simulation_button['text'] == 'Break':
             clear_canvas(self.canvas)
-            ph.update_objects_positions(gravity_params, 0.08)
+            ph.update_objects_positions(gravity_params, TIME_FOR_APPROXIMATION)
             ph.check_collision(gravity_params, COLLISION_RADIUS)
 
             for obj in gravity_params.objects:

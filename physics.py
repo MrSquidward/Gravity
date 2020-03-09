@@ -127,6 +127,7 @@ def check_vector_sense(x1, y1, x2, y2):
 
     return sign_x, sign_y
 
+
 # todo to samo co compute collison
 def is_position_the_same(x1, y1, x2, y2, r):
     delta_x = abs(x1 - x2)
@@ -143,19 +144,16 @@ def compute_speed_after_collision(obj1, obj2):
 
 
 def merge_two_objects_during_collision(gravity_params, obj1, obj2):
-    print(obj1.velocity)
-    print(obj2.velocity)
-
     merged_position = list(compute_geometrical_center([obj1, obj2]))
     merged_velocity = compute_speed_after_collision(obj1, obj2)
-    print(merged_velocity)
+
     merged_obj = GravityObject(merged_position, merged_velocity, obj1.mass + obj2.mass)
     merged_obj.previous_positions.append((merged_position[0], merged_position[1]))
+
     gravity_params.objects.remove(obj1)
     gravity_params.objects.remove(obj2)
 
     gravity_params.objects.append(merged_obj)
-    print(len(gravity_params.objects))
 
 
 def update_objects_positions(gravity_params, time):
@@ -163,3 +161,17 @@ def update_objects_positions(gravity_params, time):
         obj.update_parameters(gravity_params.objects, time)
 
     gravity_params.update_params()
+
+
+'''
+todo
+    wyświetlanie drogi dla obiektów które nie istanieją
+    co robimy z todo powyzej (collision to to samo co check position czy cos)
+    ulepszenie wyswietlania drogi
+    jednostki
+    komenatrze do kodu
+    read_me:
+        rozdzial o gui
+        jak odpalic na komputerze instrukcja
+        dopisac troche do fizyki o centrum masy itp
+'''
