@@ -4,7 +4,7 @@ import physics as ph
 import time
 
 # distance between two objects that is consider as crash
-COLLISION_RADIUS = 10
+COLLISION_RADIUS = 20
 # radius of objects during viewing it on canvas
 OBJECT_RADIUS = 20
 # size of dot (used in viewing mass and geometrical center)
@@ -102,16 +102,17 @@ class InputFrame:
         object1 = self.objs_list[0]
         object2 = self.objs_list[1]
 
-        while not ph.check_collision(object1, object2, COLLISION_RADIUS)\
-                and self.start_simulation_button['text'] == 'Break':
+        while self.start_simulation_button['text'] == 'Break':
             clear_canvas(self.canvas)
             ph.update_objects_positions(gravity_params, 0.08)
-            display_gravity_object(object1, self.canvas)
-            display_gravity_object(object2, self.canvas)
+            ph.check_collision(gravity_params, COLLISION_RADIUS)
+
+            for obj in gravity_params.objects:
+                display_gravity_object(obj, self.canvas)
 
             if self.is_checked_objects_paths.get():
-                display_object_path(object1, self.canvas)
-                display_object_path(object2, self.canvas)
+                for obj in gravity_params.objects:
+                    display_object_path(obj, self.canvas)
 
             if self.is_checked_mass_center.get():
                 display_mass_center(gravity_params, self.canvas)

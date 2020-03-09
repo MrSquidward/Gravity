@@ -37,7 +37,7 @@ class GravityObject:
         acceleration_x = acceleration_y = 0
         for obj in objects:
 
-            if is_position_the_same(obj.position[0], obj.position[1], self.position[0], self.position[1], 0):
+            if id(obj) == id(self):
                 continue
 
             r = compute_distance(self.position[0], self.position[1], obj.position[0], obj.position[1])
@@ -96,11 +96,22 @@ def compute_center_of_mass(obj_list):
     return cen_x, cen_y
 
 
-def check_collision(obj1, obj2, distance):
+def compute_collision(obj1, obj2, distance):
+
     delta_x = abs(obj1.position[0] - obj2.position[0])
     delta_y = abs(obj1.position[1] - obj2.position[1])
 
     return delta_x <= distance and delta_y <= distance
+
+
+def check_collision(gravity_params, distance):
+    for i in range(len(gravity_params.objects)):
+        for j in range(len(gravity_params.objects)):
+            if id(gravity_params.objects[i]) != id(gravity_params.objects[j]):
+                if compute_collision(gravity_params.objects[i], gravity_params.objects[j], distance):
+                    merge_two_objects_during_collision(gravity_params, gravity_params.objects[i],
+                                                       gravity_params.objects[j])
+                    return
 
 
 def check_vector_sense(x1, y1, x2, y2):
@@ -116,16 +127,39 @@ def check_vector_sense(x1, y1, x2, y2):
 
     return sign_x, sign_y
 
+# todo to samo co compute collison
+def is_position_the_same(x1, y1, x2, y2, r):
+    delta_x = abs(x1 - x2)
+    delta_y = abs(y1 - y2)
+
+    return delta_x <= r and delta_y <= r
+
+
+def compute_speed_after_collision(obj1, obj2):
+    momentum_obj1 = [obj1.velocity[0] * obj1.mass, obj1.velocity[1] * obj1.mass]
+    momentum_obj2 = [obj2.velocity[0] * obj2.mass, obj2.velocity[1] * obj2.mass]
+    sum_of_mass = obj1.mass + obj2.mass
+    return [(momentum_obj1[0] + momentum_obj2[0]) / sum_of_mass, (momentum_obj1[1] + momentum_obj2[1]) / sum_of_mass]
+
+
+def merge_two_objects_during_collision(gravity_params, obj1, obj2):
+    print(obj1.velocity)
+    print(obj2.velocity)
+
+    merged_position = list(compute_geometrical_center([obj1, obj2]))
+    merged_velocity = compute_speed_after_collision(obj1, obj2)
+    print(merged_velocity)
+    merged_obj = GravityObject(merged_position, merged_velocity, obj1.mass + obj2.mass)
+    merged_obj.previous_positions.append((merged_position[0], merged_position[1]))
+    gravity_params.objects.remove(obj1)
+    gravity_params.objects.remove(obj2)
+
+    gravity_params.objects.append(merged_obj)
+    print(len(gravity_params.objects))
+
 
 def update_objects_positions(gravity_params, time):
     for obj in gravity_params.objects:
         obj.update_parameters(gravity_params.objects, time)
 
     gravity_params.update_params()
-
-
-def is_position_the_same(x1, y1, x2, y2, r):
-    delta_x = abs(x1 - x2)
-    delta_y = abs(y1 - y2)
-
-    return delta_x <= r and delta_y <= r
