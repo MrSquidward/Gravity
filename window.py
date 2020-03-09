@@ -103,8 +103,6 @@ class InputFrame:
             self.start_simulation_button.config(text='Break')
 
         gravity_params = ph.GravityParameters(self.objs_list)
-        object1 = self.objs_list[0]
-        object2 = self.objs_list[1]
 
         while self.start_simulation_button['text'] == 'Break':
             clear_canvas(self.canvas)
@@ -176,7 +174,6 @@ class ObjectOptions:
         self.place_save_button()
         self.place_default_button()
 
-
     def __del__(self):
         clear_canvas(self.canvas)
         display_all_gravity_objects(self.obj_list, self.canvas)
@@ -208,20 +205,17 @@ class ObjectOptions:
         self.entry_veloy.place(x=200, y=100, width=50)
         self.entry_mass.place(x=100, y=150, width=100)
 
-
     def place_default_button(self):
         self.default_button['text'] = 'Default'
         self.default_button['font'] = self.font
 
         self.default_button.place(x=60, y=200, width=80)
 
-
     def place_save_button(self):
         self.save_button['text'] = 'Save'
         self.save_button['font'] = self.font
 
         self.save_button.place(x=170, y=200, width=80)
-
 
     def cb_default_entry(self):
         self.entry_posx.delete(0, tk.END)
@@ -235,7 +229,6 @@ class ObjectOptions:
         self.entry_velox.insert(0, self.g_object.velocity[0])
         self.entry_veloy.insert(0, self.g_object.velocity[1])
         self.entry_mass.insert(0, format(self.g_object.mass, '10.1E'))
-
 
     def cb_save(self):
         self.g_object.position = [int(self.entry_posx.get()), int(self.entry_posy.get())]
