@@ -136,7 +136,7 @@ class InputFrame:
                 return
 
         # object with default values
-        g_object = ph.GravityObject([event.x, event.y], [20, 0], 30E14)
+        g_object = ph.GravityObject([event.x, event.y], [0, 0], 30E14)
         self.objs_list.append(g_object)
 
         display_gravity_object(g_object, self.canvas)

@@ -83,7 +83,6 @@ def compute_geometrical_center(obj_list):
 
 
 def compute_center_of_mass(obj_list):
-
     cen_x = cen_y = sum_of_mass = 0
     for obj in obj_list:
         cen_x += obj.position[0] * obj.mass
@@ -97,7 +96,6 @@ def compute_center_of_mass(obj_list):
 
 
 def compute_collision(obj1, obj2, distance):
-
     delta_x = abs(obj1.position[0] - obj2.position[0])
     delta_y = abs(obj1.position[1] - obj2.position[1])
 
@@ -170,6 +168,8 @@ todo
     ulepszenie wyswietlania drogi
     jednostki
     komenatrze do kodu
+    lepsze gui
+    reset btn
     read_me:
         rozdzial o gui
         jak odpalic na komputerze instrukcja
