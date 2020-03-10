@@ -9,7 +9,7 @@ OBJECT_RADIUS = 20
 # size of dot (used in viewing mass and geometrical center)
 DOT_RADIUS = 2
 # time after which new position is calculated and movement equations is updated to match distance changes
-TIME_FOR_APPROXIMATION = 0.01
+TIME_FOR_APPROXIMATION = 0.05
 
 
 def create_circle(x, y, r, canvas, tag='none', color='black'):

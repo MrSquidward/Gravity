@@ -21,9 +21,9 @@ class GravityParameters:
 
 
 class GravityObject:
-    def __init__(self, pos, velo, mass):
+    def __init__(self, pos, velocity, mass):
         self.position = pos
-        self.velocity = velo
+        self.velocity = velocity
         self.mass = mass
         self.previous_positions = []
         self.previous_positions_iterator = PREVIOUS_POSITION_PRECISION
@@ -106,7 +106,9 @@ def check_collision(gravity_params, distance):
     for i in range(len(gravity_params.objects)):
         for j in range(len(gravity_params.objects)):
             if id(gravity_params.objects[i]) != id(gravity_params.objects[j]):
-                if compute_collision(gravity_params.objects[i], gravity_params.objects[j], distance):
+                if is_position_the_same(gravity_params.objects[i].position[0], gravity_params.objects[i].position[1],
+                                        gravity_params.objects[j].position[0], gravity_params.objects[j].position[1],
+                                        distance):
                     merge_two_objects_during_collision(gravity_params, gravity_params.objects[i],
                                                        gravity_params.objects[j])
                     return
@@ -126,7 +128,6 @@ def check_vector_sense(x1, y1, x2, y2):
     return sign_x, sign_y
 
 
-# todo to samo co compute collison
 def is_position_the_same(x1, y1, x2, y2, r):
     delta_x = abs(x1 - x2)
     delta_y = abs(y1 - y2)
@@ -164,14 +165,14 @@ def update_objects_positions(gravity_params, time):
 '''
 todo
     wyświetlanie drogi dla obiektów które nie istanieją
-    co robimy z todo powyzej (collision to to samo co check position czy cos)
     ulepszenie wyswietlania drogi
     jednostki
     komenatrze do kodu
     lepsze gui
     reset btn
+    zależność wielkości obiektu od masy
+    zrobic cos aby nie wywalalo bledow przy zamknieciu okna ??
     read_me:
         rozdzial o gui
-        jak odpalic na komputerze instrukcja
         dopisac troche do fizyki o centrum masy itp
 '''
