@@ -11,13 +11,10 @@ PREVIOUS_POSITION_PRECISION = 3
 class GravityParameters:
     def __init__(self, list_of_objects):
         self.objects = list_of_objects
-
         self.center_of_mass = compute_center_of_mass(self.objects)
-        self.geometrical_center = compute_geometrical_center(self.objects)
 
     def update_params(self):
         self.center_of_mass = compute_center_of_mass(self.objects)
-        self.geometrical_center = compute_geometrical_center(self.objects)
 
 
 class GravityObject:
@@ -76,8 +73,12 @@ def compute_geometrical_center(obj_list):
         cen_x += obj.position[0]
         cen_y += obj.position[1]
 
-    cen_x /= len(obj_list)
-    cen_y /= len(obj_list)
+    try:
+        cen_x /= len(obj_list)
+        cen_y /= len(obj_list)
+
+    except ZeroDivisionError as e:
+        print('Empty list of objects')
 
     return cen_x, cen_y
 
@@ -89,8 +90,12 @@ def compute_center_of_mass(obj_list):
         cen_y += obj.position[1] * obj.mass
         sum_of_mass += obj.mass
 
-    cen_x /= sum_of_mass
-    cen_y /= sum_of_mass
+    try:
+        cen_x /= sum_of_mass
+        cen_y /= sum_of_mass
+
+    except ZeroDivisionError as e:
+        print('Empty list of objects or sum of mass is 0')
 
     return cen_x, cen_y
 
@@ -171,7 +176,6 @@ todo
     lepsze gui
     reset btn
     zależność wielkości obiektu od masy
-    zrobic cos aby nie wywalalo bledow przy zamknieciu okna ??
     read_me:
         rozdzial o gui
         dopisac troche do fizyki o centrum masy itp
