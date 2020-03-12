@@ -9,7 +9,7 @@ OBJECT_RADIUS = 20
 # size of dot (used in viewing mass and geometrical center)
 DOT_RADIUS = 2
 # time after which new position is calculated and movement equations is updated to match distance changes
-TIME_FOR_APPROXIMATION = 0.05
+APPROXIMATION_TIME = 0.01
 
 
 def create_circle(x, y, r, canvas, tag='none', color='black'):
@@ -20,13 +20,14 @@ def create_circle(x, y, r, canvas, tag='none', color='black'):
     return canvas.create_oval(x0, y0, x1, y1, tags=tag, fill=color)
 
 
+# todo rozwiazac konflikt dwu funkcji
 def display_gravity_object(g_object, canvas):
     create_circle(g_object.position[0], g_object.position[1], OBJECT_RADIUS, canvas, 'g_object', 'blue')
 
 
 def display_all_gravity_objects(g_objects, canvas):
     for g_obj in g_objects:
-        create_circle(g_obj.position[0], g_obj.position[1], OBJECT_RADIUS, canvas, 'g_object', 'blue')
+        create_circle(g_obj.position[0], g_obj.position[1], g_obj.radius, canvas, 'g_object', 'blue')
 
 
 def display_mass_center(gravity_params, canvas):
@@ -41,13 +42,13 @@ def display_geometrical_center(gravity, canvas):
     create_circle(x, y, DOT_RADIUS, canvas, 'center', 'purple')
 
 
-def display_object_path(g_object, canvas):
-        prev_x = int(g_object.previous_positions[0][0])
-        prev_y = int(g_object.previous_positions[0][1])
+def display_object_path(list_of_prev_pos, canvas):
+        prev_x = int(list_of_prev_pos[0][0])
+        prev_y = int(list_of_prev_pos[0][1])
 
-        for idx in range(1, len(g_object.previous_positions)):
-            x = int(g_object.previous_positions[idx][0])
-            y = int(g_object.previous_positions[idx][1])
+        for idx in range(1, len(list_of_prev_pos)):
+            x = int(list_of_prev_pos[idx][0])
+            y = int(list_of_prev_pos[idx][1])
 
             if prev_x == x and prev_y == y:
                 continue
@@ -108,15 +109,16 @@ class InputFrame:
 
         while self.start_simulation_button['text'] == 'Break':
             clear_canvas(self.canvas)
-            ph.update_objects_positions(gravity_params, TIME_FOR_APPROXIMATION)
+            ph.update_objects_positions(gravity_params, APPROXIMATION_TIME)
             ph.check_collision(gravity_params, COLLISION_RADIUS)
 
-            for obj in gravity_params.objects:
-                display_gravity_object(obj, self.canvas)
+            display_all_gravity_objects(gravity_params.objects, self.canvas)
 
             if self.is_checked_objects_paths.get():
                 for obj in gravity_params.objects:
-                    display_object_path(obj, self.canvas)
+                    display_object_path(obj.previous_positions, self.canvas)
+                for list_of_prev in gravity_params.prev_positions_of_deleted_obj:
+                    display_object_path(list_of_prev, self.canvas)
 
             if self.is_checked_mass_center.get():
                 display_mass_center(gravity_params, self.canvas)
@@ -136,7 +138,7 @@ class InputFrame:
                 return
 
         # object with default values
-        g_object = ph.GravityObject([event.x, event.y], [20, 0], 30E14)
+        g_object = ph.GravityObject([event.x, event.y], [0, 0], 30E14)
         self.objs_list.append(g_object)
 
         display_gravity_object(g_object, self.canvas)
@@ -149,10 +151,10 @@ class InputFrame:
 
 
 class ObjectOptions:
-    def __init__(self, m_root, g_obj, canvas, list):
+    def __init__(self, m_root, g_obj, canvas, list_of_obj):
         self.g_object = g_obj
         self.canvas = canvas
-        self.obj_list = list
+        self.obj_list = list_of_obj
 
         self.main_root = m_root
         self.root = tk.Toplevel(self.main_root)
@@ -178,6 +180,7 @@ class ObjectOptions:
 
     def __del__(self):
         clear_canvas(self.canvas)
+        ph.compute_radius_sizes(self.obj_list)
         display_all_gravity_objects(self.obj_list, self.canvas)
 
     def place_entry_fields(self):

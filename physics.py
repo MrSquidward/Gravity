@@ -1,11 +1,14 @@
 # Contains functions and classes that compute motion equations and give new positions of two objects
 # as well as calculating mass enter and geometrical center.
 import math
+from math import atan
 
 
 GRAVITY_CONST = 6.674301515E-11
 # how often position will be put into list of prev position (once in number below)
 PREVIOUS_POSITION_PRECISION = 3
+OBJECT_RADIUS = 20
+# size of dot (used in viewing mass and geometrical center)
 
 
 class GravityParameters:
@@ -14,6 +17,7 @@ class GravityParameters:
 
         self.center_of_mass = compute_center_of_mass(self.objects)
         self.geometrical_center = compute_geometrical_center(self.objects)
+        self.prev_positions_of_deleted_obj = []
 
     def update_params(self):
         self.center_of_mass = compute_center_of_mass(self.objects)
@@ -25,6 +29,7 @@ class GravityObject:
         self.position = pos
         self.velocity = velocity
         self.mass = mass
+        self.radius = OBJECT_RADIUS
         self.previous_positions = []
         self.previous_positions_iterator = PREVIOUS_POSITION_PRECISION
 
@@ -133,7 +138,10 @@ def compute_speed_after_collision(obj1, obj2):
     momentum_obj1 = [obj1.velocity[0] * obj1.mass, obj1.velocity[1] * obj1.mass]
     momentum_obj2 = [obj2.velocity[0] * obj2.mass, obj2.velocity[1] * obj2.mass]
     sum_of_mass = obj1.mass + obj2.mass
-    return [(momentum_obj1[0] + momentum_obj2[0]) / sum_of_mass, (momentum_obj1[1] + momentum_obj2[1]) / sum_of_mass]
+    if sum_of_mass == 0:
+        return [momentum_obj1[0] + momentum_obj2[0], momentum_obj1[1] + momentum_obj2[1]]
+    else:
+        return [(momentum_obj1[0] + momentum_obj2[0]) / sum_of_mass, (momentum_obj1[1] + momentum_obj2[1]) / sum_of_mass]
 
 
 def merge_two_objects_during_collision(gravity_params, obj1, obj2):
@@ -142,11 +150,38 @@ def merge_two_objects_during_collision(gravity_params, obj1, obj2):
 
     merged_obj = GravityObject(merged_position, merged_velocity, obj1.mass + obj2.mass)
     merged_obj.previous_positions.append((merged_position[0], merged_position[1]))
+    merged_obj.radius = change_radius_after_merge(obj1, obj2)
+    gravity_params.prev_positions_of_deleted_obj.append(obj1.previous_positions)
+    gravity_params.prev_positions_of_deleted_obj.append(obj2.previous_positions)
 
     gravity_params.objects.remove(obj1)
     gravity_params.objects.remove(obj2)
 
     gravity_params.objects.append(merged_obj)
+
+
+def change_radius_after_merge(obj1, obj2):
+    if obj1.radius >= obj2.radius:
+        new_radius = obj2.radius / 5 + obj1.radius
+    else:
+        new_radius = obj1.radius / 5 + obj2.radius
+    return new_radius
+
+
+def compute_radius_sizes(list_of_obj):
+    average_mass = 0
+    list_of_normalized_mass = []
+    for obj in list_of_obj:
+        average_mass += obj.mass
+        list_of_normalized_mass.append(obj.mass)
+
+    if len(list_of_obj) != 0:
+        average_mass /= len(list_of_obj)
+    else:
+        return
+
+    for i in range(len(list_of_obj)):
+        list_of_obj[i].radius = OBJECT_RADIUS + 4 * atan(list_of_normalized_mass[i] - average_mass)
 
 
 def update_objects_positions(gravity_params, time):
@@ -158,7 +193,6 @@ def update_objects_positions(gravity_params, time):
 
 '''
 todo
-    wyświetlanie drogi dla obiektów które nie istanieją
     ulepszenie wyswietlania drogi
     jednostki
     zależność wielkości obiektu od masy
