@@ -7,21 +7,19 @@ from math import atan
 GRAVITY_CONST = 6.674301515E-11
 # how often position will be put into list of prev position (once in number below)
 PREVIOUS_POSITION_PRECISION = 3
-OBJECT_RADIUS = 20
 # size of dot (used in viewing mass and geometrical center)
+OBJECT_RADIUS = 20
 
 
 class GravityParameters:
     def __init__(self, list_of_objects):
         self.objects = list_of_objects
-
         self.center_of_mass = compute_center_of_mass(self.objects)
         self.geometrical_center = compute_geometrical_center(self.objects)
         self.prev_positions_of_deleted_obj = []
 
     def update_params(self):
         self.center_of_mass = compute_center_of_mass(self.objects)
-        self.geometrical_center = compute_geometrical_center(self.objects)
 
 
 class GravityObject:
@@ -81,24 +79,38 @@ def compute_geometrical_center(obj_list):
         cen_x += obj.position[0]
         cen_y += obj.position[1]
 
-    cen_x /= len(obj_list)
-    cen_y /= len(obj_list)
+    try:
+        cen_x /= len(obj_list)
+        cen_y /= len(obj_list)
+
+    except ZeroDivisionError as e:
+        print('Empty list of objects')
 
     return cen_x, cen_y
 
 
 def compute_center_of_mass(obj_list):
-
     cen_x = cen_y = sum_of_mass = 0
     for obj in obj_list:
         cen_x += obj.position[0] * obj.mass
         cen_y += obj.position[1] * obj.mass
         sum_of_mass += obj.mass
 
-    cen_x /= sum_of_mass
-    cen_y /= sum_of_mass
+    try:
+        cen_x /= sum_of_mass
+        cen_y /= sum_of_mass
+
+    except ZeroDivisionError as e:
+        print('Empty list of objects or sum of mass is 0')
 
     return cen_x, cen_y
+
+
+def compute_collision(obj1, obj2, distance):
+    delta_x = abs(obj1.position[0] - obj2.position[0])
+    delta_y = abs(obj1.position[1] - obj2.position[1])
+
+    return delta_x <= distance and delta_y <= distance
 
 
 def check_collision(gravity_params, distance):
@@ -193,10 +205,7 @@ def update_objects_positions(gravity_params, time):
 
 '''
 todo
-    ulepszenie wyswietlania drogi
     jednostki
-    zależność wielkości obiektu od masy
-    zrobic cos aby nie wywalalo bledow przy zamknieciu okna ??
     read_me:
         rozdzial o gui
         dopisac troche do fizyki o centrum masy itp
