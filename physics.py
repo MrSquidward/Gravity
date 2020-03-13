@@ -201,12 +201,3 @@ def update_objects_positions(gravity_params, time):
         obj.update_parameters(gravity_params.objects, time)
 
     gravity_params.update_params()
-
-
-'''
-todo
-    jednostki
-    read_me:
-        rozdzial o gui
-        dopisac troche do fizyki o centrum masy itp
-'''

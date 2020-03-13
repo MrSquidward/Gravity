@@ -23,14 +23,13 @@ def create_circle(x, y, r, canvas, tag='none', color='black'):
     return canvas.create_oval(x0, y0, x1, y1, tags=tag, fill=color)
 
 
-# todo rozwiazac konflikt dwu funkcji
 def display_gravity_object(g_object, canvas):
     create_circle(g_object.position[0], g_object.position[1], g_object.radius, canvas, 'g_object', 'white')
 
 
 def display_all_gravity_objects(g_objects, canvas):
     for g_obj in g_objects:
-        create_circle(g_obj.position[0], g_obj.position[1], g_obj.radius, canvas, 'g_object', 'white')
+        display_gravity_object(g_obj, canvas)
 
 
 def display_mass_center(gravity_params, canvas):
@@ -55,7 +54,7 @@ def display_object_path(list_of_prev_pos, canvas):
             if prev_x == x and prev_y == y:
                 continue
             else:
-                canvas.create_line(prev_x, prev_y, x, y)
+                canvas.create_line(prev_x, prev_y, x, y, tag='path')
                 prev_x = x
                 prev_y = y
 
@@ -199,11 +198,11 @@ class InputFrame:
 
         clear_simulation_button = ttk.Button(self.frame, style='font.TButton', command=self.cb_clear_button)
         clear_simulation_button.config(text='Clear')
-        clear_simulation_button.place(x=10, y=195)
+        clear_simulation_button.place(x=20, y=195)
 
         restart_simulation_button = ttk.Button(self.frame, style='font.TButton', command=self.cb_restart_button)
         restart_simulation_button.config(text='Restart')
-        restart_simulation_button.place(x=150, y=195)
+        restart_simulation_button.place(x=160, y=195)
 
 
 class ObjectOptions:
@@ -225,7 +224,7 @@ class ObjectOptions:
         s_label = ttk.Style()
         s_label.configure('font.TLabel', font=('verdana', 12))
         s_entry = ttk.Style()
-        s_entry.configure('font.TEntry', font=('verdana', 12))
+        s_entry.configure('font.TEntry', font=('verdana', 14))
 
         self.frame = ttk.Frame(self.root, height=250, width=300)
         self.frame.pack()
@@ -233,11 +232,11 @@ class ObjectOptions:
         self.save_button = ttk.Button(self.frame, command=self.cb_save, style='font.TButton')
         self.default_button = ttk.Button(self.frame, command=self.cb_default_entry, style='font.TButton')
 
-        self.entry_posx = ttk.Entry(self.frame, style='TEntry')
-        self.entry_posy = ttk.Entry(self.frame, style='TEntry')
-        self.entry_velox = ttk.Entry(self.frame, style='TEntry')
-        self.entry_veloy = ttk.Entry(self.frame, style='TEntry')
-        self.entry_mass = ttk.Entry(self.frame, style='TEntry')
+        self.entry_posx = ttk.Entry(self.frame, style='font.TEntry')
+        self.entry_posy = ttk.Entry(self.frame, style='font.TEntry')
+        self.entry_velox = ttk.Entry(self.frame, style='font.TEntry')
+        self.entry_veloy = ttk.Entry(self.frame, style='font.TEntry')
+        self.entry_mass = ttk.Entry(self.frame, style='font.TEntry')
 
         self.place_entry_fields()
         self.place_save_button()
