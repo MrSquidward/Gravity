@@ -1,5 +1,5 @@
 # Gravity
-Gravity is GUI application wrote in Python with TKinter library by two students of WUT in their free time. It simulates movement of objects under the action of gravity force. User can specyfiy number of objects as well as starting position, mass and velocity.
+Gravity is GUI application wirtten in Python with TKinter library by two students of WUT in their free time. It simulates movement of objects under the action of gravity force. User can specyfiy number of objects as well as starting position, mass and velocity.
 # GUI
 ![gui](https://user-images.githubusercontent.com/50463656/76630327-23228a80-6540-11ea-9faf-f4bb28d95c75.PNG)
 
