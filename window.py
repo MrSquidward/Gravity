@@ -86,7 +86,12 @@ class InputFrame:
         s_checkbtn.configure('font.TCheckbutton', font=('verdana', 12))
         s_label = ttk.Style()
         s_label.configure('font.TLabel', font=('verdana', 12))
+        s_small_label = ttk.Style()
+        s_small_label.configure('small_font.TLabel', font=('verdana', 10))
 
+        self.max_sleep = 0.05
+
+        self.speed_scale_bar = tk.DoubleVar()
         self.is_checked_mass_center = tk.IntVar()
         self.is_checked_geom_center = tk.IntVar()
         self.is_checked_objects_paths = tk.IntVar()
@@ -95,6 +100,7 @@ class InputFrame:
 
         self.create_labels()
         self.create_buttons()
+        self.create_scale_bar()
         self.create_checkboxes()
 
     def create_labels(self):
@@ -102,10 +108,24 @@ class InputFrame:
                                                                    'Then press start button.')
         display_lb = ttk.Label(self.frame, style='font.TLabel', text='Display options:')
         restart_lb = ttk.Label(self.frame, style='font.TLabel', text='Clearing all set up and restarting \nsimulation:')
+        speed_lb = ttk.Label(self.frame, style='font.TLabel', text='Set up speed of simulation: ')
+        slow_lb = ttk.Label(self.frame, style='small_font.TLabel', text='slow')
+        quick_lb = ttk.Label(self.frame, style='small_font.TLabel', text='quick')
 
-        restart_lb.place(x=10, y=140)
-        display_lb.place(x=15, y=475)
         intro_lb.place(x=10, y=10)
+        restart_lb.place(x=10, y=140)
+        speed_lb.place(x=10, y=265)
+        slow_lb.place(x=35, y=302)
+        quick_lb.place(x=230, y=302)
+        display_lb.place(x=15, y=475)
+
+    def create_scale_bar(self):
+        # speed is reversed, because it uses time.sleep to slow down simulation
+        def_sleep = self.max_sleep - 0.01
+        self.speed_scale_bar.set(def_sleep)
+        speed_scale = ttk.Scale(self.frame, from_=0.0, to=self.max_sleep, variable=self.speed_scale_bar)
+        speed_scale.config(length=150)
+        speed_scale.place(x=75, y=300)
 
     def create_checkboxes(self):
         checkbox_mass_center = ttk.Checkbutton(self.frame, text='Display mass center', style='font.TCheckbutton')
@@ -154,7 +174,8 @@ class InputFrame:
                     display_geometrical_center(gravity_params, self.canvas)
 
                 update_window(self.root)
-                sleep(0.01)
+                sleep_value = self.max_sleep - round(self.speed_scale_bar.get(), 3)
+                sleep(sleep_value)
 
             self.start_simulation_button.config(text='Start')
 
