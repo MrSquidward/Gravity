@@ -44,19 +44,8 @@ def display_geometrical_center(gravity, canvas):
 
 
 def display_object_path(list_of_prev_pos, canvas):
-        prev_x = int(list_of_prev_pos[0][0])
-        prev_y = int(list_of_prev_pos[0][1])
-
-        for idx in range(1, len(list_of_prev_pos)):
-            x = int(list_of_prev_pos[idx][0])
-            y = int(list_of_prev_pos[idx][1])
-
-            if prev_x == x and prev_y == y:
-                continue
-            else:
-                canvas.create_line(prev_x, prev_y, x, y, tag='path')
-                prev_x = x
-                prev_y = y
+        if len(list_of_prev_pos) >= 4:
+            canvas.create_line(list_of_prev_pos, smooth=True)
 
 
 def clear_canvas(canvas):
@@ -91,10 +80,10 @@ def get_presets_from_file(filename):
                 continue
             elif counter % 7 == 1:
                 # x position of an object
-                pos_x.append(float(exp))
+                pos_x.append(int(exp))
             elif counter % 7 == 2:
                 # y position of an object
-                pos_y.append(float(exp))
+                pos_y.append(int(exp))
             elif counter % 7 == 3:
                 # velocity in x direction of an object
                 velo_x.append(float(exp))
@@ -299,7 +288,7 @@ class InputFrame:
                 return
 
         # object with default values
-        g_object = ph.GravityObject([event.x, event.y], [0, 0], 30E14)
+        g_object = ph.GravityObject([event.x, event.y], [0.0, 0.0], 30E14)
         self.objs_list.append(g_object)
 
         display_gravity_object(g_object, self.canvas)
@@ -391,7 +380,7 @@ class ObjectOptions:
 
     def cb_save(self):
         self.g_object.position = [int(self.entry_posx.get()), int(self.entry_posy.get())]
-        self.g_object.velocity = [int(self.entry_velox.get()), int(self.entry_veloy.get())]
+        self.g_object.velocity = [float(self.entry_velox.get()), float(self.entry_veloy.get())]
         self.g_object.mass = float(self.entry_mass.get())
 
         self.root.destroy()

@@ -6,7 +6,7 @@ from math import atan
 
 GRAVITY_CONST = 6.674301515E-11
 # how often position will be put into list of prev position (once in number below)
-PREVIOUS_POSITION_PRECISION = 3
+PREVIOUS_POSITION_PRECISION = 10
 # size of dot (used in viewing mass and geometrical center)
 OBJECT_RADIUS = 20
 
