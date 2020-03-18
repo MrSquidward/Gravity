@@ -1,7 +1,8 @@
 # Gravity
-Gravity is GUI application wrote in Python with TKinter library by two students of WUT in their free time. It simulate movement of two objects (or more in progress) under the action of gravity force. User can specyfiy starting position, mass and velocity of objects as well as can manipulate how fast will animation go (in progress too).
+Gravity is GUI application wirtten in Python with TKinter library by two students of WUT in their free time. It simulates movement of objects under the action of gravity force. User can specyfiy number of objects as well as starting position, mass and velocity.
 # GUI
-(in progress)
+![gui](https://user-images.githubusercontent.com/50463656/76630327-23228a80-6540-11ea-9faf-f4bb28d95c75.PNG)
+
 # Physics background
 Objects with mass affects on each other by [gravity force](https://en.wikipedia.org/wiki/Newton%27s_law_of_universal_gravitation). At first this force is being transfered into acceleration (due to [Netwon's second law](https://en.wikipedia.org/wiki/Newton%27s_laws_of_motion#Newton's_second_law)) and split into two dimensions (x and y) with use of cosinus function. After that acceleration is being integrated into velocity and position*:
   * new_velocity = acceleration_x * time + old_velocity
