@@ -67,12 +67,62 @@ def update_window(master):
     master.update()
 
 
+def get_presets_from_file(filename):
+    file = open(filename, 'r')
+    set_up_list = []
+
+    for line in file:
+        s_line = line.split()
+
+        set_up = []
+        pos_x = []
+        pos_y = []
+        velo_x = []
+        velo_y = []
+        mass = []
+
+        # counter starts at 6, because modulo from a number smaller than 7 is always 0
+        counter = 6
+        for exp in s_line:
+            counter += 1
+
+            if counter % 7 == 0 or counter % 7 == 6:
+                # ignoring brackets
+                continue
+            elif counter % 7 == 1:
+                # x position of an object
+                pos_x.append(float(exp))
+            elif counter % 7 == 2:
+                # y position of an object
+                pos_y.append(float(exp))
+            elif counter % 7 == 3:
+                # velocity in x direction of an object
+                velo_x.append(float(exp))
+            elif counter % 7 == 4:
+                # velocity in y direction of an object
+                velo_y.append(float(exp))
+            elif counter % 7 == 5:
+                # mass of an object
+                mass.append(float(exp))
+
+        for i in range(len(pos_x)):
+            g_object = ph.GravityObject([pos_x[i], pos_y[i]], [velo_x[i], velo_y[i]], mass[i])
+            set_up.append(g_object)
+
+        set_up_list.append(set_up)
+
+    file.close()
+    return set_up_list
+
+
 class InputFrame:
     def __init__(self, master, can):
         self.root = master
         self.canvas = can
         self.objs_list = []
         self.starting_objs_list = []
+        self.presets_list = get_presets_from_file('presets.txt')
+        print(self.presets_list)
 
         style = ThemedStyle(self.root)
         style.set_theme('equilux')
@@ -84,6 +134,8 @@ class InputFrame:
         s_btn.configure('font.TButton', font=('verdana', 12))
         s_checkbtn = ttk.Style()
         s_checkbtn.configure('font.TCheckbutton', font=('verdana', 12))
+        s_combobox = ttk.Style()
+        s_combobox.configure('font.TCombobox', font=('verdana', 12))
         s_label = ttk.Style()
         s_label.configure('font.TLabel', font=('verdana', 12))
         s_small_label = ttk.Style()
@@ -91,6 +143,7 @@ class InputFrame:
 
         self.max_sleep = 0.05
 
+        self.preset_value = tk.StringVar()
         self.speed_scale_bar = tk.DoubleVar()
         self.is_checked_mass_center = tk.IntVar()
         self.is_checked_geom_center = tk.IntVar()
@@ -98,26 +151,38 @@ class InputFrame:
 
         self.start_simulation_button = ttk.Button(self.frame, style='font.TButton')
 
+        self.create_combobox()
         self.create_labels()
         self.create_buttons()
         self.create_scale_bar()
         self.create_checkboxes()
 
     def create_labels(self):
-        intro_lb = ttk.Label(self.frame, style='font.TLabel', text='Click on grey canvas to create an \nobject. '
+        preset_lb = ttk.Label(self.frame, style='font.TLabel', text='Choose set up or click on grey\n'
+                                                                    'canvas to create an object.')
+        start_lb = ttk.Label(self.frame, style='font.TLabel', text='Click on an object to edit it.\n'
                                                                    'Then press start button.')
-        display_lb = ttk.Label(self.frame, style='font.TLabel', text='Display options:')
         restart_lb = ttk.Label(self.frame, style='font.TLabel', text='Clearing all set up and restarting \nsimulation:')
         speed_lb = ttk.Label(self.frame, style='font.TLabel', text='Set up speed of simulation: ')
         slow_lb = ttk.Label(self.frame, style='small_font.TLabel', text='slow')
         quick_lb = ttk.Label(self.frame, style='small_font.TLabel', text='quick')
+        display_lb = ttk.Label(self.frame, style='font.TLabel', text='Display options:')
 
-        intro_lb.place(x=10, y=10)
-        restart_lb.place(x=10, y=140)
-        speed_lb.place(x=10, y=265)
-        slow_lb.place(x=35, y=302)
-        quick_lb.place(x=230, y=302)
+        preset_lb.place(x=10, y=10)
+        start_lb.place(x=10, y=125)
+        restart_lb.place(x=10, y=235)
+        speed_lb.place(x=10, y=340)
+        slow_lb.place(x=35, y=372)
+        quick_lb.place(x=230, y=372)
         display_lb.place(x=15, y=475)
+
+    def create_combobox(self):
+        preset_combobox = ttk.Combobox(self.frame, justify='center', textvariable=self.preset_value,
+                                       font=('verdana', 11), state='readonly')
+        preset_combobox['values'] = ('None', 'First Preset', 'Second Preset')
+        preset_combobox.current(0)
+        preset_combobox.bind('<<ComboboxSelected>>', self.cb_preset_combobox)
+        preset_combobox.place(x=70, y=65, width=160)
 
     def create_scale_bar(self):
         # speed is reversed, because it uses time.sleep to slow down simulation
@@ -125,7 +190,20 @@ class InputFrame:
         self.speed_scale_bar.set(def_sleep)
         speed_scale = ttk.Scale(self.frame, from_=0.0, to=self.max_sleep, variable=self.speed_scale_bar)
         speed_scale.config(length=150)
-        speed_scale.place(x=75, y=300)
+        speed_scale.place(x=75, y=370)
+
+    def create_buttons(self):
+        self.start_simulation_button.config(command=self.cb_start_simulation)
+        self.start_simulation_button.config(text='Start')
+        self.start_simulation_button.place(x=100, y=180, width=100)
+
+        clear_simulation_button = ttk.Button(self.frame, style='font.TButton', command=self.cb_clear_button)
+        clear_simulation_button.config(text='Clear')
+        clear_simulation_button.place(x=33, y=285, width=100)
+
+        restart_simulation_button = ttk.Button(self.frame, style='font.TButton', command=self.cb_restart_button)
+        restart_simulation_button.config(text='Restart')
+        restart_simulation_button.place(x=166, y=285, width=100)
 
     def create_checkboxes(self):
         checkbox_mass_center = ttk.Checkbutton(self.frame, text='Display mass center', style='font.TCheckbutton')
@@ -139,6 +217,21 @@ class InputFrame:
         checkbox_mass_center.place(x=10, y=500)
         checkbox_geom_center.place(x=10, y=525)
         checkbox_objects_paths.place(x=10, y=550)
+
+    def cb_preset_combobox(self, event):
+        clear_canvas(self.canvas)
+        preset_id = 0
+
+        if self.preset_value.get() == 'None':
+            self.objs_list = []
+            return
+        if self.preset_value.get() == 'First Preset':
+            preset_id = 0
+        if self.preset_value.get() == 'Second Preset':
+            preset_id = 1
+
+        self.objs_list = self.presets_list[preset_id]
+        display_all_gravity_objects(self.objs_list, self.canvas)
 
     def cb_start_simulation(self):
         if len(self.starting_objs_list) == 0:
@@ -212,19 +305,6 @@ class InputFrame:
         display_gravity_object(g_object, self.canvas)
         ObjectOptions(self.root, g_object, self.canvas, self.objs_list)
 
-    def create_buttons(self):
-        self.start_simulation_button.config(command=self.cb_start_simulation)
-        self.start_simulation_button.config(text='Start')
-        self.start_simulation_button.place(x=80, y=75)
-
-        clear_simulation_button = ttk.Button(self.frame, style='font.TButton', command=self.cb_clear_button)
-        clear_simulation_button.config(text='Clear')
-        clear_simulation_button.place(x=20, y=195)
-
-        restart_simulation_button = ttk.Button(self.frame, style='font.TButton', command=self.cb_restart_button)
-        restart_simulation_button.config(text='Restart')
-        restart_simulation_button.place(x=160, y=195)
-
 
 class ObjectOptions:
     def __init__(self, m_root, g_obj, canvas, list_of_obj):
@@ -244,8 +324,6 @@ class ObjectOptions:
         s_btn.configure('font.TButton', font=('verdana', 12))
         s_label = ttk.Style()
         s_label.configure('font.TLabel', font=('verdana', 12))
-        s_entry = ttk.Style()
-        s_entry.configure('font.TEntry', font=('verdana', 14))
 
         self.frame = ttk.Frame(self.root, height=250, width=300)
         self.frame.pack()
@@ -253,11 +331,12 @@ class ObjectOptions:
         self.save_button = ttk.Button(self.frame, command=self.cb_save, style='font.TButton')
         self.default_button = ttk.Button(self.frame, command=self.cb_default_entry, style='font.TButton')
 
-        self.entry_posx = ttk.Entry(self.frame, style='font.TEntry')
-        self.entry_posy = ttk.Entry(self.frame, style='font.TEntry')
-        self.entry_velox = ttk.Entry(self.frame, style='font.TEntry')
-        self.entry_veloy = ttk.Entry(self.frame, style='font.TEntry')
-        self.entry_mass = ttk.Entry(self.frame, style='font.TEntry')
+        font = ('verdana', 10)
+        self.entry_posx = ttk.Entry(self.frame, font=font)
+        self.entry_posy = ttk.Entry(self.frame, font=font)
+        self.entry_velox = ttk.Entry(self.frame, font=font)
+        self.entry_veloy = ttk.Entry(self.frame, font=font)
+        self.entry_mass = ttk.Entry(self.frame, font=font)
 
         self.place_entry_fields()
         self.place_save_button()
