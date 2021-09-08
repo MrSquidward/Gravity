@@ -4,7 +4,7 @@ import math
 from math import atan
 
 
-GRAVITY_CONST = 6.674301515E-11
+GRAVITY_CONST = 6.674301515e-11
 # how often position will be put into list of prev position (once in number below)
 PREVIOUS_POSITION_PRECISION = 10
 # size of dot (used in viewing mass and geometrical center)
@@ -43,19 +43,45 @@ class GravityObject:
             if id(obj) == id(self):
                 continue
 
-            r = compute_distance(self.position[0], self.position[1], obj.position[0], obj.position[1])
-            vector_sense = check_vector_sense(self.position[0], self.position[1], obj.position[0], obj.position[1])
+            r = compute_distance(
+                self.position[0], self.position[1], obj.position[0], obj.position[1]
+            )
+            vector_sense = check_vector_sense(
+                self.position[0], self.position[1], obj.position[0], obj.position[1]
+            )
 
-            acceleration_x += -vector_sense[0] * (GRAVITY_CONST * obj.mass *
-                                                  cos_value_in_x(r, self.position[0], obj.position[0])) / (r ** 2)
+            acceleration_x += (
+                -vector_sense[0]
+                * (
+                    GRAVITY_CONST
+                    * obj.mass
+                    * cos_value_in_x(r, self.position[0], obj.position[0])
+                )
+                / (r ** 2)
+            )
 
-            acceleration_y += -vector_sense[1] * (GRAVITY_CONST * obj.mass *
-                                                  cos_value_in_y(r, self.position[1], obj.position[1])) / (r ** 2)
+            acceleration_y += (
+                -vector_sense[1]
+                * (
+                    GRAVITY_CONST
+                    * obj.mass
+                    * cos_value_in_y(r, self.position[1], obj.position[1])
+                )
+                / (r ** 2)
+            )
 
-        self.position[0] = (acceleration_x * (time ** 2) / 2) + self.velocity[0] * time + self.position[0]
+        self.position[0] = (
+            (acceleration_x * (time ** 2) / 2)
+            + self.velocity[0] * time
+            + self.position[0]
+        )
         self.velocity[0] = acceleration_x * time + self.velocity[0]
 
-        self.position[1] = (acceleration_y * (time ** 2) / 2) + self.velocity[1] * time + self.position[1]
+        self.position[1] = (
+            (acceleration_y * (time ** 2) / 2)
+            + self.velocity[1] * time
+            + self.position[1]
+        )
         self.velocity[1] = acceleration_y * time + self.velocity[1]
 
 
@@ -84,7 +110,7 @@ def compute_geometrical_center(obj_list):
         cen_y /= len(obj_list)
 
     except ZeroDivisionError as e:
-        print('Empty list of objects')
+        print("Empty list of objects")
 
     return cen_x, cen_y
 
@@ -101,7 +127,7 @@ def compute_center_of_mass(obj_list):
         cen_y /= sum_of_mass
 
     except ZeroDivisionError as e:
-        print('Empty list of objects or sum of mass is 0')
+        print("Empty list of objects or sum of mass is 0")
 
     return cen_x, cen_y
 
@@ -117,11 +143,18 @@ def check_collision(gravity_params, distance):
     for i in range(len(gravity_params.objects)):
         for j in range(len(gravity_params.objects)):
             if id(gravity_params.objects[i]) != id(gravity_params.objects[j]):
-                if is_position_the_same(gravity_params.objects[i].position[0], gravity_params.objects[i].position[1],
-                                        gravity_params.objects[j].position[0], gravity_params.objects[j].position[1],
-                                        distance):
-                    merge_two_objects_during_collision(gravity_params, gravity_params.objects[i],
-                                                       gravity_params.objects[j])
+                if is_position_the_same(
+                    gravity_params.objects[i].position[0],
+                    gravity_params.objects[i].position[1],
+                    gravity_params.objects[j].position[0],
+                    gravity_params.objects[j].position[1],
+                    distance,
+                ):
+                    merge_two_objects_during_collision(
+                        gravity_params,
+                        gravity_params.objects[i],
+                        gravity_params.objects[j],
+                    )
                     return
 
 
@@ -151,9 +184,15 @@ def compute_speed_after_collision(obj1, obj2):
     momentum_obj2 = [obj2.velocity[0] * obj2.mass, obj2.velocity[1] * obj2.mass]
     sum_of_mass = obj1.mass + obj2.mass
     if sum_of_mass == 0:
-        return [momentum_obj1[0] + momentum_obj2[0], momentum_obj1[1] + momentum_obj2[1]]
+        return [
+            momentum_obj1[0] + momentum_obj2[0],
+            momentum_obj1[1] + momentum_obj2[1],
+        ]
     else:
-        return [(momentum_obj1[0] + momentum_obj2[0]) / sum_of_mass, (momentum_obj1[1] + momentum_obj2[1]) / sum_of_mass]
+        return [
+            (momentum_obj1[0] + momentum_obj2[0]) / sum_of_mass,
+            (momentum_obj1[1] + momentum_obj2[1]) / sum_of_mass,
+        ]
 
 
 def merge_two_objects_during_collision(gravity_params, obj1, obj2):
@@ -193,7 +232,9 @@ def compute_radius_sizes(list_of_obj):
         return
 
     for i in range(len(list_of_obj)):
-        list_of_obj[i].radius = OBJECT_RADIUS + 4 * atan(list_of_normalized_mass[i] - average_mass)
+        list_of_obj[i].radius = OBJECT_RADIUS + 4 * atan(
+            list_of_normalized_mass[i] - average_mass
+        )
 
 
 def update_objects_positions(gravity_params, time):

@@ -10,7 +10,7 @@ def main():
     draw_frame = ttk.Frame(master, height=600, width=800)
     draw_frame.pack(side=tk.LEFT)
 
-    canvas = tk.Canvas(draw_frame, bg='grey', height=600, width=800)
+    canvas = tk.Canvas(draw_frame, bg="grey", height=600, width=800)
     canvas.pack()
 
     input_frame = win.InputFrame(master, canvas)
