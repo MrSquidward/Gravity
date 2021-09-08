@@ -187,7 +187,9 @@ class InputFrame:
         try:
             while self.start_simulation_button["text"] == "Pause":
                 clear_canvas(self.canvas)
-                GravityObject.update_objects_positions(gravity_params, APPROXIMATION_TIME)
+                GravityObject.update_objects_positions(
+                    gravity_params, APPROXIMATION_TIME
+                )
                 GravityObject.check_collision(gravity_params, COLLISION_RADIUS)
 
                 display_all_gravity_objects(gravity_params.objects, self.canvas)

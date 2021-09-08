@@ -141,10 +141,14 @@ class GravityObject:
 
     @staticmethod
     def merge_two_objects_during_collision(gravity_params, obj1, obj2):
-        merged_position = list(GravityParameters.compute_geometrical_center([obj1, obj2]))
+        merged_position = list(
+            GravityParameters.compute_geometrical_center([obj1, obj2])
+        )
         merged_velocity = GravityObject.compute_speed_after_collision(obj1, obj2)
 
-        merged_obj = GravityObject(merged_position, merged_velocity, obj1.mass + obj2.mass)
+        merged_obj = GravityObject(
+            merged_position, merged_velocity, obj1.mass + obj2.mass
+        )
         merged_obj.previous_positions.append((merged_position[0], merged_position[1]))
         merged_obj.radius = GravityObject.change_radius_after_merge(obj1, obj2)
         gravity_params.prev_positions_of_deleted_obj.append(obj1.previous_positions)
