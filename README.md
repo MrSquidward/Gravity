@@ -1,10 +1,14 @@
 # Gravity
 Gravity is GUI application wirtten in Python with TKinter library by two students of WUT in their free time. It simulates movement of objects under the action of gravity force. User can specyfiy number of objects as well as starting position, mass and velocity.
 
-## Usage
-`pipenv shell`
-`pipenv install`
-`python main.py`
+## Install and run using pipenv
+```
+git clone https://github.com/MrSquidward/Gravity.git
+cd Gravity
+pipenv shell
+pipenv install
+python main.py
+```
 
 ## GUI
 ![readme](https://user-images.githubusercontent.com/50464859/76998937-265db200-6956-11ea-8682-be13e6b182c5.png)
