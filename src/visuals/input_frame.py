@@ -31,7 +31,7 @@ class InputFrame:
         self.canvas = can
         self.objs_list = []
         self.starting_objs_list = []
-        self.presets_list = get_presets_from_file("presets.txt")
+        self.presets_list = get_presets_from_file("presets.json")
         print(self.presets_list)
 
         style = ThemedStyle(self.root)

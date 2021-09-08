@@ -1,6 +1,8 @@
 from src.physics.gravity_object import GravityObject
 from src.physics.gravity_parameters import GravityParameters
 
+import json
+
 # size of dot (used in viewing mass and geometrical center)
 DOT_RADIUS = 2
 
@@ -54,50 +56,18 @@ def update_window(master):
 
 
 def get_presets_from_file(filename):
-    file = open(filename, "r")
-    set_up_list = []
-
-    for line in file:
-        s_line = line.split()
-
-        set_up = []
-        pos_x = []
-        pos_y = []
-        velo_x = []
-        velo_y = []
-        mass = []
-
-        # counter starts at 6, because modulo from a number smaller than 7 is always 0
-        counter = 6
-        for exp in s_line:
-            counter += 1
-
-            if counter % 7 == 0 or counter % 7 == 6:
-                # ignoring brackets
-                continue
-            elif counter % 7 == 1:
-                # x position of an object
-                pos_x.append(int(exp))
-            elif counter % 7 == 2:
-                # y position of an object
-                pos_y.append(int(exp))
-            elif counter % 7 == 3:
-                # velocity in x direction of an object
-                velo_x.append(float(exp))
-            elif counter % 7 == 4:
-                # velocity in y direction of an object
-                velo_y.append(float(exp))
-            elif counter % 7 == 5:
-                # mass of an object
-                mass.append(float(exp))
-
-        for i in range(len(pos_x)):
-            g_object = GravityObject(
-                [pos_x[i], pos_y[i]], [velo_x[i], velo_y[i]], mass[i]
-            )
-            set_up.append(g_object)
-
-        set_up_list.append(set_up)
-
-    file.close()
-    return set_up_list
+    with open(filename, "r") as json_file:
+        presets = json.load(json_file)
+        set_ups = []
+        for preset in presets["Presets"]:
+            set_up = []
+            for _object in preset["objects"]:
+                gravity_object = GravityObject([_object["Position"]["x"],
+                                                _object["Position"]["y"]],
+                                               [_object["Velocity"]["x"],
+                                                _object["Velocity"]["y"]],
+                                               float(_object["Mass"])
+                                               )
+                set_up.append(gravity_object)
+            set_ups.append(set_up)
+    return set_ups
