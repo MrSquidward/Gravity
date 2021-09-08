@@ -5,7 +5,7 @@ from ttkthemes import ThemedStyle
 from time import sleep
 from copy import deepcopy
 
-from src import physics as ph
+import src.physics as ph
 
 # distance between two objects that is consider as crash
 COLLISION_RADIUS = 20
