@@ -1,6 +1,6 @@
 import tkinter as tk
 import tkinter.ttk as ttk
-import window as win
+from src.visuals.input_frame import InputFrame
 
 
 def main():
@@ -13,7 +13,7 @@ def main():
     canvas = tk.Canvas(draw_frame, bg="grey", height=600, width=800)
     canvas.pack()
 
-    input_frame = win.InputFrame(master, canvas)
+    input_frame = InputFrame(master, canvas)
 
     canvas.bind("<Button-1>", input_frame.canvas_right_click)
 

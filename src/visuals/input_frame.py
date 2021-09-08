@@ -5,112 +5,24 @@ from ttkthemes import ThemedStyle
 from time import sleep
 from copy import deepcopy
 
-import physics as ph
+from src.physics.gravity_parameters import GravityParameters
+from src.physics.gravity_object import GravityObject
+from src.utils import (
+    get_presets_from_file,
+    clear_canvas,
+    display_all_gravity_objects,
+    display_gravity_object,
+    update_window,
+    display_object_path,
+    display_mass_center,
+    display_geometrical_center,
+)
+from src.visuals.object_options_frame import ObjectOptionsFrame
 
 # distance between two objects that is consider as crash
 COLLISION_RADIUS = 20
-# size of dot (used in viewing mass and geometrical center)
-DOT_RADIUS = 2
 # time after which new position is calculated and movement equations is updated to match distance changes
 APPROXIMATION_TIME = 0.01
-
-
-def create_circle(x, y, r, canvas, tag="none", color="black"):
-    x0 = x - r
-    y0 = y - r
-    x1 = x + r
-    y1 = y + r
-    return canvas.create_oval(x0, y0, x1, y1, tags=tag, fill=color)
-
-
-def display_gravity_object(g_object, canvas):
-    create_circle(
-        g_object.position[0],
-        g_object.position[1],
-        g_object.radius,
-        canvas,
-        "g_object",
-        "white",
-    )
-
-
-def display_all_gravity_objects(g_objects, canvas):
-    for g_obj in g_objects:
-        display_gravity_object(g_obj, canvas)
-
-
-def display_mass_center(gravity_params, canvas):
-    x = gravity_params.center_of_mass[0]
-    y = gravity_params.center_of_mass[1]
-    create_circle(x, y, DOT_RADIUS, canvas, "center", "red")
-
-
-def display_geometrical_center(gravity, canvas):
-    x, y = ph.compute_geometrical_center(gravity.objects)
-    create_circle(x, y, DOT_RADIUS, canvas, "center", "purple")
-
-
-def display_object_path(list_of_prev_pos, canvas):
-    if len(list_of_prev_pos) >= 4:
-        canvas.create_line(list_of_prev_pos, smooth=True)
-
-
-def clear_canvas(canvas):
-    canvas.delete("all")
-
-
-def update_window(master):
-    master.update()
-
-
-def get_presets_from_file(filename):
-    file = open(filename, "r")
-    set_up_list = []
-
-    for line in file:
-        s_line = line.split()
-
-        set_up = []
-        pos_x = []
-        pos_y = []
-        velo_x = []
-        velo_y = []
-        mass = []
-
-        # counter starts at 6, because modulo from a number smaller than 7 is always 0
-        counter = 6
-        for exp in s_line:
-            counter += 1
-
-            if counter % 7 == 0 or counter % 7 == 6:
-                # ignoring brackets
-                continue
-            elif counter % 7 == 1:
-                # x position of an object
-                pos_x.append(int(exp))
-            elif counter % 7 == 2:
-                # y position of an object
-                pos_y.append(int(exp))
-            elif counter % 7 == 3:
-                # velocity in x direction of an object
-                velo_x.append(float(exp))
-            elif counter % 7 == 4:
-                # velocity in y direction of an object
-                velo_y.append(float(exp))
-            elif counter % 7 == 5:
-                # mass of an object
-                mass.append(float(exp))
-
-        for i in range(len(pos_x)):
-            g_object = ph.GravityObject(
-                [pos_x[i], pos_y[i]], [velo_x[i], velo_y[i]], mass[i]
-            )
-            set_up.append(g_object)
-
-        set_up_list.append(set_up)
-
-    file.close()
-    return set_up_list
 
 
 class InputFrame:
@@ -270,13 +182,13 @@ class InputFrame:
         else:
             self.start_simulation_button.config(text="Pause")
 
-        gravity_params = ph.GravityParameters(self.objs_list)
+        gravity_params = GravityParameters(self.objs_list)
 
         try:
             while self.start_simulation_button["text"] == "Pause":
                 clear_canvas(self.canvas)
-                ph.update_objects_positions(gravity_params, APPROXIMATION_TIME)
-                ph.check_collision(gravity_params, COLLISION_RADIUS)
+                GravityObject.update_objects_positions(gravity_params, APPROXIMATION_TIME)
+                GravityObject.check_collision(gravity_params, COLLISION_RADIUS)
 
                 display_all_gravity_objects(gravity_params.objects, self.canvas)
 
@@ -321,116 +233,15 @@ class InputFrame:
 
     def canvas_right_click(self, event):
         for obj in self.objs_list:
-            if ph.is_position_the_same(
+            if GravityObject.is_position_the_same(
                 event.x, event.y, obj.position[0], obj.position[1], obj.radius
             ):
-                ObjectOptions(self.root, obj, self.canvas, self.objs_list)
+                ObjectOptionsFrame(self.root, obj, self.canvas, self.objs_list)
                 return
 
         # object with default values
-        g_object = ph.GravityObject([event.x, event.y], [0.0, 0.0], 30e14)
+        g_object = GravityObject([event.x, event.y], [0.0, 0.0], 30e14)
         self.objs_list.append(g_object)
 
         display_gravity_object(g_object, self.canvas)
-        ObjectOptions(self.root, g_object, self.canvas, self.objs_list)
-
-
-class ObjectOptions:
-    def __init__(self, m_root, g_obj, canvas, list_of_obj):
-        self.g_object = g_obj
-        self.canvas = canvas
-        self.obj_list = list_of_obj
-
-        self.main_root = m_root
-        self.root = tk.Toplevel(self.main_root)
-        self.root.title("Object properties")
-        self.root.grab_set()
-
-        style = ThemedStyle(self.root)
-        style.set_theme("equilux")
-
-        s_btn = ttk.Style()
-        s_btn.configure("font.TButton", font=("verdana", 12))
-        s_label = ttk.Style()
-        s_label.configure("font.TLabel", font=("verdana", 12))
-
-        self.frame = ttk.Frame(self.root, height=250, width=300)
-        self.frame.pack()
-
-        self.save_button = ttk.Button(
-            self.frame, command=self.cb_save, style="font.TButton"
-        )
-        self.default_button = ttk.Button(
-            self.frame, command=self.cb_default_entry, style="font.TButton"
-        )
-
-        font = ("verdana", 10)
-        self.entry_posx = ttk.Entry(self.frame, font=font)
-        self.entry_posy = ttk.Entry(self.frame, font=font)
-        self.entry_velox = ttk.Entry(self.frame, font=font)
-        self.entry_veloy = ttk.Entry(self.frame, font=font)
-        self.entry_mass = ttk.Entry(self.frame, font=font)
-
-        self.place_entry_fields()
-        self.place_save_button()
-        self.place_default_button()
-
-    def __del__(self):
-        clear_canvas(self.canvas)
-        ph.compute_radius_sizes(self.obj_list)
-        display_all_gravity_objects(self.obj_list, self.canvas)
-
-    def place_entry_fields(self):
-        lb_velox = ttk.Label(self.frame, style="font.TLabel", text="X")
-        lb_veloy = ttk.Label(self.frame, style="font.TLabel", text="Y")
-        lb_position = ttk.Label(self.frame, style="font.TLabel", text="Position: ")
-        lb_velocity = ttk.Label(self.frame, style="font.TLabel", text="Velocity: ")
-        lb_mass = ttk.Label(self.frame, style="font.TLabel", text="Mass: ")
-
-        lb_velox.place(x=115, y=20)
-        lb_veloy.place(x=215, y=20)
-        lb_position.place(x=10, y=50)
-        lb_velocity.place(x=10, y=100)
-        lb_mass.place(x=10, y=150)
-
-        self.cb_default_entry()
-
-        self.entry_posx.place(x=100, y=50, width=50)
-        self.entry_posy.place(x=200, y=50, width=50)
-        self.entry_velox.place(x=100, y=100, width=50)
-        self.entry_veloy.place(x=200, y=100, width=50)
-        self.entry_mass.place(x=100, y=150, width=100)
-
-    def place_default_button(self):
-        self.default_button["text"] = "Default"
-        self.default_button.place(x=60, y=200, width=100)
-
-    def place_save_button(self):
-        self.save_button["text"] = "Save"
-        self.save_button.place(x=170, y=200, width=80)
-
-    def cb_default_entry(self):
-        self.entry_posx.delete(0, tk.END)
-        self.entry_posy.delete(0, tk.END)
-        self.entry_velox.delete(0, tk.END)
-        self.entry_veloy.delete(0, tk.END)
-        self.entry_mass.delete(0, tk.END)
-
-        self.entry_posx.insert(0, self.g_object.position[0])
-        self.entry_posy.insert(0, self.g_object.position[1])
-        self.entry_velox.insert(0, self.g_object.velocity[0])
-        self.entry_veloy.insert(0, self.g_object.velocity[1])
-        self.entry_mass.insert(0, format(self.g_object.mass, "10.1E"))
-
-    def cb_save(self):
-        self.g_object.position = [
-            int(self.entry_posx.get()),
-            int(self.entry_posy.get()),
-        ]
-        self.g_object.velocity = [
-            float(self.entry_velox.get()),
-            float(self.entry_veloy.get()),
-        ]
-        self.g_object.mass = float(self.entry_mass.get())
-
-        self.root.destroy()
+        ObjectOptionsFrame(self.root, g_object, self.canvas, self.objs_list)
