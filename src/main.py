@@ -1,6 +1,7 @@
-import window as win
+from src import window as win
 import tkinter as tk
 import tkinter.ttk as ttk
+
 
 def main():
     master = tk.Tk()
@@ -18,5 +19,7 @@ def main():
 
     tk.mainloop()
 
+
 if __name__ == "main.py":
+    print("sda")
     main()
