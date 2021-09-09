@@ -5,6 +5,6 @@
 #    pipenv lock --requirements
 #
 
--i https://pypi.org/simple
 pillow==8.3.2; python_version >= '3.6'
 ttkthemes==3.2.2
+structlog==21.1.0
