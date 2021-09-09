@@ -62,12 +62,11 @@ def get_presets_from_file(filename):
         for preset in presets["Presets"]:
             set_up = []
             for _object in preset["objects"]:
-                gravity_object = GravityObject([_object["Position"]["x"],
-                                                _object["Position"]["y"]],
-                                               [_object["Velocity"]["x"],
-                                                _object["Velocity"]["y"]],
-                                               float(_object["Mass"])
-                                               )
+                gravity_object = GravityObject(
+                    [_object["Position"]["x"], _object["Position"]["y"]],
+                    [_object["Velocity"]["x"], _object["Velocity"]["y"]],
+                    float(_object["Mass"]),
+                )
                 set_up.append(gravity_object)
             set_ups.append(set_up)
     return set_ups

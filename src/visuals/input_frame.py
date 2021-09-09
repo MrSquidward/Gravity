@@ -69,7 +69,11 @@ class InputFrame:
         self.create_buttons()
         self.create_scale_bar()
         self.create_checkboxes()
-        log.info("Visuals loaded", collision_radius=COLLISION_RADIUS, approximation_time=APPROXIMATION_TIME)
+        log.info(
+            "Visuals loaded",
+            collision_radius=COLLISION_RADIUS,
+            approximation_time=APPROXIMATION_TIME,
+        )
 
     def create_labels(self):
         preset_lb = ttk.Label(
@@ -218,7 +222,9 @@ class InputFrame:
             self.start_simulation_button.config(text="Start")
 
         except tk.TclError as e:
-            log.exception("Simulation", error_message=e, info="You have left during a simulation")
+            log.exception(
+                "Simulation", error_message=e, info="You have left during a simulation"
+            )
 
     def cb_clear_button(self):
         self.start_simulation_button.config(text="Pause")

@@ -23,7 +23,9 @@ class GravityParameters:
             cen_x /= len(gravity_objects)
             cen_y /= len(gravity_objects)
         except ZeroDivisionError as e:
-            log.exception("Zero division error", error_message=e, info="Empty list of objects")
+            log.exception(
+                "Zero division error", error_message=e, info="Empty list of objects"
+            )
         return cen_x, cen_y
 
     @staticmethod
@@ -37,5 +39,9 @@ class GravityParameters:
             cen_x /= sum_of_mass
             cen_y /= sum_of_mass
         except ZeroDivisionError as e:
-            log.exception("Zero division error", error_message=e, info="Empty list of objects or sum of mass is 0")
+            log.exception(
+                "Zero division error",
+                error_message=e,
+                info="Empty list of objects or sum of mass is 0",
+            )
         return cen_x, cen_y
